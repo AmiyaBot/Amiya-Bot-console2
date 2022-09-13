@@ -22,3 +22,9 @@ export async function setOperator (data: StringDict) {
         data
     })
 }
+
+export async function updateSetting () {
+    return await request.get({
+        url: '/operator/updateSetting'
+    })
+}

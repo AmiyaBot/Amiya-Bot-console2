@@ -1,6 +1,9 @@
 <template>
     <div>
         <v-table ref="table" :load="loadList">
+            <template #header>
+                <el-button type="success" @click="updateSetting">应用干员设置</el-button>
+            </template>
             <template #operations="{row}">
                 <el-link :underline="false" type="primary" @click="setOperator(row)">设定干员属性</el-link>
             </template>
@@ -32,7 +35,7 @@
 
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component'
-import { getOperator, setOperator } from '@/request/operator'
+import { getOperator, setOperator, updateSetting } from '@/request/operator'
 import Common, { StringDict } from '@/lib/common'
 
 import VTable, { QueryData } from '@/components/table/vTable.vue'
@@ -97,6 +100,10 @@ export default class Operator extends Vue {
             this.dialog.hide()
             this.table.executeLoad()
         }
+    }
+
+    public async updateSetting () {
+        await updateSetting()
     }
 }
 </script>
