@@ -90,7 +90,11 @@ export default class Operator extends Vue {
     }
 
     public async setOperator (data: StringDict) {
-        this.form = Common.deepCopy(data)
+        const form = Common.deepCopy(data)
+
+        form.operator_type = (form.operator_type || '').toString()
+
+        this.form = form
         this.dialog.show()
     }
 

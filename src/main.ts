@@ -4,6 +4,7 @@ import router from './router'
 import store from './store'
 
 import 'element-plus/dist/index.css'
+import '@/assets/css/github-markdown-light.css'
 
 const app = createApp(App)
 

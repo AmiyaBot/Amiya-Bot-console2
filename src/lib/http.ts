@@ -103,7 +103,7 @@ export default class HttpRequest {
         Notice.notify(errorMessage, error.code, 'error', 10000)
     }
 
-    async request (options: RequestConfig) {
+    async request (options: RequestConfig): Promise<any> {
         return await this.instance.request(options)
     }
 

@@ -35,6 +35,16 @@ const indexChildren: Array<RouteRecordRaw> = [
         path: '/gacha',
         name: 'gacha',
         component: () => import('../views/app/gacha.vue')
+    },
+    {
+        path: '/plugin',
+        name: 'plugin',
+        component: () => import('../views/app/plugin.vue')
+    },
+    {
+        path: '/shop',
+        name: 'shop',
+        component: () => import('../views/app/shop.vue')
     }
 ]
 

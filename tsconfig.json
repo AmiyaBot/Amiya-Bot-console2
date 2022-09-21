@@ -8,6 +8,7 @@
         "experimentalDecorators": true,
         "skipLibCheck": true,
         "esModuleInterop": true,
+        "allowJs": true,
         "allowSyntheticDefaultImports": true,
         "forceConsistentCasingInFileNames": true,
         "useDefineForClassFields": true,
@@ -29,6 +30,7 @@
         ]
     },
     "include": [
+        "src/**/*.js",
         "src/**/*.ts",
         "src/**/*.tsx",
         "src/**/*.vue",

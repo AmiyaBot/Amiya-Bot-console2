@@ -25,7 +25,9 @@ import {
     CreditCard,
     MessageBox,
     User,
-    Key
+    Key,
+    Goods,
+    Link
 } from '@element-plus/icons-vue'
 
 const navName = {
@@ -35,7 +37,9 @@ const navName = {
     operator: '干员管理',
     gacha: '卡池管理',
     admin: '管理员管理',
-    user: '用户管理'
+    user: '用户管理',
+    plugin: '插件管理',
+    shop: '插件商店'
 }
 
 const navIcon = {
@@ -45,7 +49,9 @@ const navIcon = {
     operator: shallowRef(CreditCard),
     gacha: shallowRef(MessageBox),
     admin: shallowRef(Key),
-    user: shallowRef(User)
+    user: shallowRef(User),
+    plugin: shallowRef(Link),
+    shop: shallowRef(Goods)
 }
 
 export {
