@@ -103,6 +103,8 @@ export default class HttpRequest {
     onResponse (response: AxiosResponse) {
         const data = response.data
 
+        RequestCon.closeLoading()
+
         switch (data.code) {
             case 200:
                 if (data.message) {
@@ -113,8 +115,6 @@ export default class HttpRequest {
                 Notice.notify(data.message, '操作未成功', 'error')
                 return undefined
         }
-
-        RequestCon.closeLoading()
 
         return data
     }
