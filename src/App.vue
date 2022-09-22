@@ -2,17 +2,22 @@
     <div style="height: calc(100% - 20px)">
         <router-view/>
     </div>
-    <div class="icp">粤ICP备2021107697号-1</div>
+    <div class="icp">
+        <a href="https://beian.miit.gov.cn/" target="_blank">粤ICP备2021107697号-1</a>
+    </div>
 </template>
 
-<style scoped>
+<style scoped lang="scss">
 .icp {
     height: 20px;
-    font-size: 12px;
-    color: var(--el-color-info);
     display: flex;
     align-items: center;
     justify-content: center;
+
+    a {
+        font-size: 12px;
+        color: var(--el-color-info);
+    }
 }
 </style>
 <style lang="scss">
@@ -58,5 +63,10 @@ html, body {
     word-break: break-all;
     word-wrap: break-word;
     text-align: inherit;
+}
+
+.v-loading {
+    background-color: transparent !important;
+    backdrop-filter: blur(10px);
 }
 </style>

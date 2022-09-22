@@ -1,8 +1,10 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import Notice from '@/lib/message'
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios'
 import Common from '@/lib/common'
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios'
+import { ElLoadingService } from 'element-plus'
+import { LoadingInstance } from 'element-plus/es/components/loading/src/loading'
 
 interface RequestConfig extends AxiosRequestConfig {
     prototype?: string
@@ -11,6 +13,29 @@ interface RequestConfig extends AxiosRequestConfig {
 
 interface HttpOptions {
     host?: string
+}
+
+class RequestCon {
+    static requesting = 0
+    static loadingInstance: LoadingInstance
+
+    static loading () {
+        this.requesting += 1
+        this.loadingInstance = ElLoadingService(
+            {
+                fullscreen: true,
+                text: '等待服务器处理...',
+                customClass: 'v-loading'
+            }
+        )
+    }
+
+    static closeLoading () {
+        this.requesting -= 1
+        if (this.requesting === 0) {
+            this.loadingInstance.close()
+        }
+    }
 }
 
 export default class HttpRequest {
@@ -70,6 +95,8 @@ export default class HttpRequest {
             }
         }
 
+        RequestCon.loading()
+
         return config
     }
 
@@ -87,6 +114,8 @@ export default class HttpRequest {
                 return undefined
         }
 
+        RequestCon.closeLoading()
+
         return data
     }
 
@@ -99,6 +128,8 @@ export default class HttpRequest {
         } else {
             errorMessage = '服务器异常'
         }
+
+        RequestCon.closeLoading()
 
         Notice.notify(errorMessage, error.code, 'error', 10000)
     }

@@ -71,7 +71,6 @@ import VTable, { QueryData } from '@/components/table/vTable.vue'
             },
             description: '描述'
         })
-        this.table.executeLoad()
     }
 })
 export default class Shop extends Vue {
