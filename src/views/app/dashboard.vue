@@ -30,6 +30,10 @@ import { Options, Vue } from 'vue-class-component'
 import { getLog } from '@/request/dashboard'
 import { VideoPause, VideoPlay } from '@element-plus/icons-vue'
 
+import $ from 'jquery'
+
+let loopLog: any = null
+
 @Options({
     components: {
         VideoPause,
@@ -40,8 +44,21 @@ import { VideoPause, VideoPlay } from '@element-plus/icons-vue'
             return this.$refs.pad
         }
     },
+    watch: {
+        refresh (value: boolean) {
+            if (!value) {
+                clearInterval(loopLog)
+            } else {
+                this.getLog()
+            }
+        }
+    },
     mounted () {
         this.getLog()
+
+        $(this.$refs.pad).on('scroll', (e) => {
+            this.refresh = e.target.scrollTop + 400 >= e.target.scrollHeight
+        })
     }
 })
 export default class Dashboard extends Vue {
@@ -51,19 +68,24 @@ export default class Dashboard extends Vue {
     public refresh = true
 
     public async getLog () {
+        clearInterval(loopLog)
+
+        if (this.$route.fullPath !== '/') {
+            this.refresh = false
+            return
+        }
+
         const res = await getLog()
         if (res) {
+            this.refresh = true
             this.logList = res.data
             await this.$nextTick(() => {
                 this.pad.scrollTop = this.pad.scrollHeight
             })
-            setTimeout(() => {
-                if (this.refresh) {
-                    this.getLog()
-                }
-            }, 10000)
+            loopLog = setInterval(this.getLog, 10000)
+        } else {
+            this.refresh = false
         }
-        this.refresh = true
     }
 
     public logFormat (line: string): string {
@@ -71,7 +93,7 @@ export default class Dashboard extends Vue {
             .replace('<', '&lt;')
             .replace('>', '&gt;')
             .replace(/\s/g, '&nbsp;')
-            .replace(/&nbsp;\[(.*)]\[(.*)]&nbsp;/, (res, r1, r2) => {
+            .replace(/&nbsp;\[(.*)]\[(.+?)]&nbsp;/, (res, r1, r2) => {
                 const main = r1.replace(/&nbsp;/g, '')
                 const level = r2.replace(/&nbsp;/g, '')
 
@@ -118,6 +140,10 @@ export default class Dashboard extends Vue {
 
     .tag-main {
         margin-left: 5px;
+    }
+
+    .tag-main.Mirai {
+        background-color: var(--el-color-success-light-5);
     }
 
     .tag-main.Tencent {

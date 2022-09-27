@@ -19,19 +19,18 @@
                     <el-icon style="color: var(--el-color-success)" v-if="row.upgrade">
                         <CaretTop/>
                     </el-icon>
+                    <el-icon style="color: var(--el-color-danger)" v-if="row.higher">
+                        <CaretBottom/>
+                    </el-icon>
                 </div>
                 <el-tag v-if="field === 'plugin_type'" :type="value ? 'success' : 'danger'">
                     {{ value === 'official' ? '官方' : '第三方' }}
                 </el-tag>
             </template>
             <template #operations="{row}">
+                <el-link :underline="false" type="success" @click="upgrade(row)" v-if="row.upgrade">更新</el-link>
                 <el-link :underline="false" type="primary" @click="install(row)" v-if="!row.installed">安装</el-link>
-                <template v-else-if="row.upgrade">
-                    <el-link :underline="false" type="success" @click="upgrade(row)">更新</el-link>
-                </template>
-                <template v-else>
-                    <el-link :underline="false" type="danger" @click="uninstall(row)">卸载</el-link>
-                </template>
+                <el-link :underline="false" type="danger" @click="uninstall(row)" v-else>卸载</el-link>
             </template>
         </v-table>
     </div>
@@ -42,7 +41,7 @@ import { Options, Vue } from 'vue-class-component'
 import { getPluginShop, getInstalledPlugin, installPlugin, upgradePlugin, uninstallPlugin } from '@/request/plugin'
 import { StringDict } from '@/lib/common'
 import { PluginItem } from '@/views/app/plugin.vue'
-import { CaretTop, WarningFilled, SuccessFilled } from '@element-plus/icons-vue'
+import { CaretTop, CaretBottom, WarningFilled, SuccessFilled } from '@element-plus/icons-vue'
 
 import VTable, { QueryData } from '@/components/table/vTable.vue'
 
@@ -50,6 +49,7 @@ import VTable, { QueryData } from '@/components/table/vTable.vue'
     components: {
         VTable,
         CaretTop,
+        CaretBottom,
         WarningFilled,
         SuccessFilled
     },
@@ -89,9 +89,13 @@ export default class Shop extends Vue {
             }
             this.table.setData(shop.filter((item: PluginItem) => {
                 item.installed = item.plugin_id in installedPlugin
-                item.upgrade = installedPlugin[item.plugin_id] ? item.version !== installedPlugin[item.plugin_id] : false
+                item.upgrade = installedPlugin[item.plugin_id] ? item.version > installedPlugin[item.plugin_id] : false
+                item.higher = installedPlugin[item.plugin_id] ? item.version < installedPlugin[item.plugin_id] : false
                 if (item.upgrade) {
                     item.curr_version = installedPlugin[item.plugin_id] + ' >> '
+                }
+                if (item.higher) {
+                    item.curr_version = installedPlugin[item.plugin_id] + ' << '
                 }
 
                 if (data.search) {
