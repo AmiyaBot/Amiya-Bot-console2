@@ -64,6 +64,18 @@
                     <el-input v-model="form.mah_ws_port" placeholder="MAH服务的Websocket端口"/>
                 </el-form-item>
             </template>
+            <template v-if="form.adapter === 'cq_http'">
+                <el-divider content-position="left">CQ-Http 配置</el-divider>
+                <el-form-item label="Host地址">
+                    <el-input v-model="form.cq_host" placeholder="CQHTTP服务的地址，本地默认为 127.0.0.1"/>
+                </el-form-item>
+                <el-form-item label="HTTP端口">
+                    <el-input v-model="form.cq_http_port" placeholder="CQHTTP服务的HTTP端口"/>
+                </el-form-item>
+                <el-form-item label="WS端口">
+                    <el-input v-model="form.cq_ws_port" placeholder="CQHTTP服务的Websocket端口"/>
+                </el-form-item>
+            </template>
             <template #footer>
                 <el-button type="primary" @click="submit(0)">保存</el-button>
                 <el-button type="success" @click="submit(1)" v-if="!form.running">保存并启动</el-button>
@@ -127,7 +139,8 @@ export default class Instance extends Vue {
 
     public adapterType = {
         tencent: 'QQ-Bot',
-        mirai_api_http: 'Mirai-api-http'
+        mirai_api_http: 'Mirai-api-http',
+        cq_http: 'CQ-Http'
     }
 
     public form = {}
@@ -151,7 +164,10 @@ export default class Instance extends Vue {
             is_start: 1,
             mah_host: '',
             mah_http_port: 0,
-            mah_ws_port: 0
+            mah_ws_port: 0,
+            cq_host: '',
+            cq_http_port: 0,
+            cq_ws_port: 0
         }
         this.formType = 'add'
         this.dialog.show()

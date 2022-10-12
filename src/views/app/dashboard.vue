@@ -142,6 +142,10 @@ export default class Dashboard extends Vue {
         margin-left: 5px;
     }
 
+    .tag-main.CQHttp {
+        background-color: var(--el-color-warning-light-5);
+    }
+
     .tag-main.Mirai {
         background-color: var(--el-color-success-light-5);
     }
