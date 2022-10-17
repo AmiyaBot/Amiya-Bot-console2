@@ -7,6 +7,7 @@ const request = new HttpRequest()
 const cos = new HttpRequest({
     host: cosHost
 })
+const official = 'plugins/official'
 
 function getPluginPostData (data: StringDict) {
     const post = {
@@ -15,7 +16,7 @@ function getPluginPostData (data: StringDict) {
         plugin_id: data.plugin_id
     }
     if (data.plugin_type === 'official') {
-        post.url = cosHost + `/plugins/${data.plugin_id}-${data.version}.zip`
+        post.url = cosHost + `/${official}/${data.plugin_id}-${data.version}.zip`
         post.packageName = `${data.plugin_id}-${data.version}.zip`
     }
 
@@ -30,7 +31,7 @@ export async function getInstalledPlugin () {
 
 export async function getPluginShop () {
     return await cos.get({
-        url: '/plugins/plugins.json'
+        url: `/${official}/plugins.json`
     })
 }
 
