@@ -1,38 +1,45 @@
 <template>
     <div>
-        <v-table ref="table" :load="getShopList">
-            <template #header>
-                <el-button type="primary">发布插件</el-button>
-            </template>
-            <template #cell="{ value, field, row }">
-                <div style="display: flex;align-items: center;" v-if="field === 'name'">
-                    {{ value }}&nbsp;
-                    <el-icon style="color: var(--el-color-warning)" v-if="row.upgrade">
-                        <WarningFilled/>
-                    </el-icon>
-                    <el-icon style="color: var(--el-color-success)" v-else-if="row.installed">
-                        <SuccessFilled/>
-                    </el-icon>
+        <el-tabs v-model="activeName" class="demo-tabs">
+            <el-tab-pane label="官方商店" name="first">
+                <div class="plugin-list">
+                    <plugin-item-card v-for="(item, index) in officialPlugins" :key="index" :item="item">
+                        <template #version>
+                            <div style="display: flex;align-items: center;">
+                                {{ item.curr_version }}{{ item.version }}
+                                <el-icon style="color: var(--el-color-success)" v-if="item.upgrade">
+                                    <CaretTop/>
+                                </el-icon>
+                                <el-icon style="color: var(--el-color-danger)" v-if="item.higher">
+                                    <CaretBottom/>
+                                </el-icon>
+                            </div>
+                        </template>
+                        <template #button>
+                            <el-link :underline="false" type="success" @click="upgrade(item)" v-if="item.upgrade">
+                                更新
+                            </el-link>
+                            <el-link :underline="false" type="primary" @click="install(item)" v-if="!item.installed">
+                                安装
+                            </el-link>
+                            <el-link :underline="false" type="danger" @click="uninstall(item)" style="margin-left: 10px"
+                                     v-else>
+                                卸载
+                            </el-link>
+                        </template>
+                    </plugin-item-card>
                 </div>
-                <div style="display: flex;align-items: center;" v-if="field === 'version'">
-                    {{ row.curr_version }}{{ value }}
-                    <el-icon style="color: var(--el-color-success)" v-if="row.upgrade">
-                        <CaretTop/>
-                    </el-icon>
-                    <el-icon style="color: var(--el-color-danger)" v-if="row.higher">
-                        <CaretBottom/>
-                    </el-icon>
+            </el-tab-pane>
+            <el-tab-pane label="创意商店" name="second">
+                <el-alert
+                    title="温馨提示，创意商店为非官方维护的插件商店，由网友上传。您在下载使用该插件时，应考虑它的功能安全性。使用创意插件产生的一切问题，本项目概不负责。"
+                    type="error" effect="dark" :closable="false"/>
+                <div style="margin: 10px 0">
+                    <el-button type="primary">上传创意插件</el-button>
                 </div>
-                <el-tag v-if="field === 'plugin_type'" :type="value ? 'success' : 'danger'">
-                    {{ value === 'official' ? '官方' : '第三方' }}
-                </el-tag>
-            </template>
-            <template #operations="{row}">
-                <el-link :underline="false" type="success" @click="upgrade(row)" v-if="row.upgrade">更新</el-link>
-                <el-link :underline="false" type="primary" @click="install(row)" v-if="!row.installed">安装</el-link>
-                <el-link :underline="false" type="danger" @click="uninstall(row)" v-else>卸载</el-link>
-            </template>
-        </v-table>
+                <el-empty description="暂无创意插件，敬请期待..."/>
+            </el-tab-pane>
+        </el-tabs>
     </div>
 </template>
 
@@ -40,43 +47,25 @@
 import { Options, Vue } from 'vue-class-component'
 import { getPluginShop, getInstalledPlugin, installPlugin, upgradePlugin, uninstallPlugin } from '@/request/plugin'
 import { StringDict } from '@/lib/common'
-import { PluginItem } from '@/views/app/plugin.vue'
-import { CaretTop, CaretBottom, WarningFilled, SuccessFilled } from '@element-plus/icons-vue'
+import { CaretTop, CaretBottom } from '@element-plus/icons-vue'
 
-import VTable, { QueryData } from '@/components/table/vTable.vue'
+import PluginItemCard, { PluginItem } from '@/views/app/pluginElem/pluginItemCard.vue'
 
 @Options({
     components: {
-        VTable,
         CaretTop,
         CaretBottom,
-        WarningFilled,
-        SuccessFilled
-    },
-    computed: {
-        table () {
-            return this.$refs.table
-        }
+        PluginItemCard
     },
     mounted () {
-        this.table.setColumns({
-            name: '插件名',
-            version: {
-                title: '版本',
-                width: 150
-            },
-            plugin_type: {
-                title: '插件类型',
-                width: 150
-            },
-            description: '描述'
-        })
+        this.getShopList()
     }
 })
 export default class Shop extends Vue {
-    table!: VTable
+    public activeName = 'first'
+    public officialPlugins = []
 
-    public async getShopList (data: QueryData) {
+    public async getShopList () {
         const shop = await getPluginShop()
         if (shop) {
             const res = await getInstalledPlugin()
@@ -87,7 +76,7 @@ export default class Shop extends Vue {
                     installedPlugin[item.plugin_id] = item.version
                 }
             }
-            this.table.setData(shop.filter((item: PluginItem) => {
+            this.officialPlugins = shop.filter((item: PluginItem) => {
                 item.installed = item.plugin_id in installedPlugin
                 item.upgrade = installedPlugin[item.plugin_id] ? item.version > installedPlugin[item.plugin_id] : false
                 item.higher = installedPlugin[item.plugin_id] ? item.version < installedPlugin[item.plugin_id] : false
@@ -97,44 +86,38 @@ export default class Shop extends Vue {
                 if (item.higher) {
                     item.curr_version = installedPlugin[item.plugin_id] + ' << '
                 }
-
-                if (data.search) {
-                    if (item.name.indexOf(data.search) >= 0) {
-                        return true
-                    }
-                    if (item.plugin_id.indexOf(data.search) >= 0) {
-                        return true
-                    }
-                    return item.description.indexOf(data.search) >= 0
-                }
                 return true
-            }))
+            })
         }
     }
 
     public async install (item: StringDict) {
         const res = await installPlugin(item)
         if (res) {
-            this.table.executeLoad()
+            await this.getShopList()
         }
     }
 
     public async upgrade (item: StringDict) {
         const res = await upgradePlugin(item)
         if (res) {
-            this.table.executeLoad()
+            await this.getShopList()
         }
     }
 
     public async uninstall (item: StringDict) {
         const res = await uninstallPlugin(item)
         if (res) {
-            this.table.executeLoad()
+            await this.getShopList()
         }
     }
 }
 </script>
 
 <style scoped lang="scss">
-
+.plugin-list {
+    padding: 10px;
+    display: flex;
+    flex-wrap: wrap;
+}
 </style>

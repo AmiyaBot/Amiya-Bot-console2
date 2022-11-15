@@ -1,5 +1,8 @@
 import HttpRequest from '@/lib/http'
 import { StringDict } from '@/lib/common'
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import plugin from './plugins.json'
 
 const cosHost = 'https://cos.amiyabot.com'
 
@@ -30,9 +33,10 @@ export async function getInstalledPlugin () {
 }
 
 export async function getPluginShop () {
-    return await cos.get({
-        url: `/${official}/plugins.json`
-    })
+    // return await cos.get({
+    //     url: `/${official}/plugins.json`
+    // })
+    return plugin
 }
 
 export async function installPlugin (data: StringDict) {

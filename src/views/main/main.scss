@@ -47,10 +47,10 @@
             border-radius: 50%;
             background: #67c23a;
             display: inline-block;
-        }
 
-        .status.off {
-            background: #ff9800;
+            &.off {
+                background: #ff9800;
+            }
         }
     }
 

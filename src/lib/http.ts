@@ -15,16 +15,16 @@ interface HttpOptions {
     host?: string
 }
 
-class RequestCon {
+export class RequestCon {
     static requesting = 0
     static loadingInstance: LoadingInstance
 
-    static loading () {
+    static loading (text = '等待服务器处理...') {
         this.requesting += 1
         this.loadingInstance = ElLoadingService(
             {
                 fullscreen: true,
-                text: '等待服务器处理...',
+                text: text,
                 customClass: 'v-loading'
             }
         )
