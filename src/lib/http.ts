@@ -126,7 +126,7 @@ export default class HttpRequest {
         if (response?.status) {
             errorMessage = `${response?.config.url}<br>Code: ${response?.status} ${response?.statusText}<br><span style="color: #f44336">${JSON.stringify(response?.data)}</span>`
         } else {
-            errorMessage = '服务器异常'
+            errorMessage = '无法访问服务器<br>请访问 <a href="https://www.amiyabot.com/guide/deploy/console/index.html#%E6%97%A0%E6%B3%95%E8%AE%BF%E9%97%AE" target="_blank">文档</a> 尝试解决'
         }
 
         RequestCon.closeLoading()

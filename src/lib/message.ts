@@ -53,12 +53,15 @@ export default class Notice {
     }
 
     static async prompt (text: string, title = '提示') {
-        return !!await MessageBox
+        const res = await MessageBox
             .prompt(text, title,
                 {
                     confirmButtonText: '确定',
                     cancelButtonText: '取消'
                 }
             )
+        if (res) {
+            return res.value
+        }
     }
 }

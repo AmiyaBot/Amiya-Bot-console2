@@ -19,6 +19,12 @@
                 </div>
             </div>
             <div class="plugin-desc">
+                <div v-if="item.author">
+                    <div>作者：</div>
+                    <div>
+                        <slot>{{ item.author }}</slot>
+                    </div>
+                </div>
                 <div>
                     <div>版本：</div>
                     <div>

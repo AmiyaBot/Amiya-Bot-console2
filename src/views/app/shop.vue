@@ -31,13 +31,7 @@
                 </div>
             </el-tab-pane>
             <el-tab-pane label="创意商店" name="second">
-                <el-alert
-                    title="温馨提示，创意商店为非官方维护的插件商店，由网友上传。您在下载使用该插件时，应考虑它的功能安全性。使用创意插件产生的一切问题，本项目概不负责。"
-                    type="error" effect="dark" :closable="false"/>
-                <div style="margin: 10px 0">
-                    <el-button type="primary">上传创意插件</el-button>
-                </div>
-                <el-empty description="暂无创意插件，敬请期待..."/>
+                <shop-custom></shop-custom>
             </el-tab-pane>
         </el-tabs>
     </div>
@@ -50,12 +44,14 @@ import { StringDict } from '@/lib/common'
 import { CaretTop, CaretBottom } from '@element-plus/icons-vue'
 
 import PluginItemCard, { PluginItem } from '@/views/app/pluginElem/pluginItemCard.vue'
+import ShopCustom from '@/views/app/shopCustom.vue'
 
 @Options({
     components: {
         CaretTop,
         CaretBottom,
-        PluginItemCard
+        PluginItemCard,
+        ShopCustom
     },
     mounted () {
         this.getShopList()
