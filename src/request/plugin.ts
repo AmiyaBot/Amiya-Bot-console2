@@ -2,7 +2,7 @@ import HttpRequest from '@/lib/http'
 import { StringDict } from '@/lib/common'
 
 const cosHost = 'https://cos.amiyabot.com'
-const sourceHost = 'https://server.amiyabot.com:8060'
+const sourceHost = 'https://server.amiyabot.com:8020'
 
 export const uploadUrl = sourceHost + '/uploadPlugin'
 
