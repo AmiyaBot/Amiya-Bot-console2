@@ -40,14 +40,26 @@
             </div>
         </div>
         <div class="plugin-opt">
-            <slot name="button"></slot>
+            <div>
+                <el-button type="success" link @click="dialog.show()">插件文档</el-button>
+            </div>
+            <div>
+                <slot name="button"></slot>
+            </div>
         </div>
     </div>
+
+    <v-form-dialog :title="'插件文档：' + item.name" ref="dialog">
+        <div class="markdown-body" v-html="pluginDoc()"></div>
+    </v-form-dialog>
 </template>
 
 <script lang="ts">
+import { marked } from 'marked'
 import { Options, Vue } from 'vue-class-component'
 import { StringDict } from '@/lib/common'
+
+import VFormDialog from '@/components/v-form-dialog.vue'
 
 export interface PluginItem extends StringDict {
     'name': string
@@ -59,12 +71,25 @@ export interface PluginItem extends StringDict {
 }
 
 @Options({
+    components: {
+        VFormDialog
+    },
+    computed: {
+        dialog () {
+            return this.$refs.dialog
+        }
+    },
     props: {
         item: Object
     }
 })
 export default class PluginItemCard extends Vue {
     item!: PluginItem
+    dialog!: VFormDialog
+
+    public pluginDoc () {
+        return marked.parse(this.item.document)
+    }
 }
 </script>
 
@@ -120,7 +145,8 @@ export default class PluginItemCard extends Vue {
 
     .plugin-opt {
         margin-top: 20px;
-        text-align: right;
+        display: flex;
+        justify-content: space-between;
     }
 }
 </style>
