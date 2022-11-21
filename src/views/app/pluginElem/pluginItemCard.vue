@@ -3,7 +3,7 @@
         <div>
             <div class="plugin-title">
                 <div class="plugin-icon">
-                    <img :src="item.logo" alt="logo" v-if="item.logo">
+                    <img :src="logo" alt="logo" v-if="logo">
                 </div>
                 <div class="plugin-info">
                     <div style="display: flex;align-items: center;">
@@ -41,7 +41,7 @@
         </div>
         <div class="plugin-opt">
             <div>
-                <el-button type="success" link @click="dialog.show()">插件文档</el-button>
+                <el-button type="primary" link @click="dialog.show()">插件文档</el-button>
             </div>
             <div>
                 <slot name="button"></slot>
@@ -57,6 +57,7 @@
 <script lang="ts">
 import { marked } from 'marked'
 import { Options, Vue } from 'vue-class-component'
+import { sourceHost } from '@/request/plugin'
 import { StringDict } from '@/lib/common'
 
 import VFormDialog from '@/components/v-form-dialog.vue'
@@ -77,6 +78,9 @@ export interface PluginItem extends StringDict {
     computed: {
         dialog () {
             return this.$refs.dialog
+        },
+        logo () {
+            return this.item.plugin_type === 'official' ? this.item.logo : (this.sourceHost + '/image?path=' + this.item.logo)
         }
     },
     props: {
@@ -86,6 +90,8 @@ export interface PluginItem extends StringDict {
 export default class PluginItemCard extends Vue {
     item!: PluginItem
     dialog!: VFormDialog
+
+    sourceHost = sourceHost
 
     public pluginDoc () {
         return marked.parse(this.item.document)

@@ -38,7 +38,10 @@
     <el-empty v-else description="暂无创意插件，敬请期待..."/>
 
     <v-form-dialog title="上传创意插件" :form="form" ref="dialog" :width="1200">
-        <el-upload drag :action="uploadUrl" :show-file-list="false" :on-success="uploaded" :on-error="uploadFail">
+        <el-upload drag :action="uploadUrl" :show-file-list="false" accept="application/zip"
+                   :on-success="uploaded"
+                   :on-error="uploadFail"
+                   :before-upload="beforeUpload">
             <el-icon class="el-icon--upload">
                 <upload-filled/>
             </el-icon>
@@ -61,11 +64,16 @@
                     <plugin-item-card :item="uploadedPlugin"></plugin-item-card>
                 </div>
                 <div class="alert">
+                    <template v-if="uploadedPlugin.success.length">
+                        <el-alert v-for="(item, index) in uploadedPlugin.success" :key="index" :title="item"
+                                  show-icon type="success" effect="dark" :closable="false"/>
+                    </template>
                     <template v-if="uploadedPlugin.error.length">
                         <el-alert v-for="(item, index) in uploadedPlugin.error" :key="index" :title="item"
                                   show-icon type="error" effect="dark" :closable="false"/>
                     </template>
-                    <el-alert v-else title="允许上传" show-icon type="success" effect="dark" :closable="false"/>
+                    <el-alert v-else title="通过校验，允许上传" show-icon type="success" effect="dark"
+                              :closable="false"/>
                     <template v-if="uploadedPlugin.warning.length">
                         <el-alert v-for="(item, index) in uploadedPlugin.warning" :key="index" :title="item"
                                   show-icon type="warning" effect="dark" :closable="false"/>
@@ -79,6 +87,10 @@
         <el-form-item label="插件密钥">
             <el-input v-model="form.secret_key"
                       placeholder="密钥用于绑定插件ID，当后续继续上传此ID的插件时需要验证上一次的密钥"/>
+        </el-form-item>
+        <el-form-item label="备注">
+            <el-input v-model="form.remark" type="textarea"
+                      placeholder="选填..."/>
         </el-form-item>
         <template #footer>
                 <span style="margin-right: 10px;font-size: 12px;color: var(--el-color-danger)"
@@ -135,7 +147,8 @@ export default class ShopCustom extends Vue {
 
     private form = {
         author: '',
-        secret_key: ''
+        secret_key: '',
+        remark: ''
     }
 
     private pluginsList = []
@@ -171,6 +184,13 @@ export default class ShopCustom extends Vue {
         this.uploadedPlugin = response
     }
 
+    public beforeUpload (file: any) {
+        if (file.size >= 50 * 1024 * 1024) {
+            Notice.alert('插件大小不能超过50MB。上传超大插件请联系开发者获得帮助。')
+            return false
+        }
+    }
+
     public async uploadFail () {
         this.uploadedPlugin = {}
         await Notice.alert('请通过官方项目测试你的插件是否能正常加载，或打包的时候是否缺少相关第三方依赖。', '插件解析失败', () => null, 'error')
@@ -186,6 +206,7 @@ export default class ShopCustom extends Vue {
             this.uploadedPlugin = {}
             this.form.author = ''
             this.form.secret_key = ''
+            this.form.remark = ''
             await this.getPlugins()
         }
     }
@@ -195,6 +216,7 @@ export default class ShopCustom extends Vue {
         if (key) {
             const res = await delCustomPlugin({
                 ...item,
+                force_delete: await Notice.confirm('是否永久下架该插件？永久下架将会删除该插件ID，并删除历史版本。', '请注意', 'warning', ['是', '否']),
                 secret_key: key
             })
             if (res) {

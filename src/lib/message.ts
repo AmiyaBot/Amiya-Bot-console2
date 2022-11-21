@@ -7,6 +7,10 @@ import {
 type NoticeTypes = 'success' | 'info' | 'warning' | 'error'
 type Callback = () => void
 
+function doNothing () {
+    //
+}
+
 export default class Notice {
     static toast (text: string, type: NoticeTypes = 'success') {
         Message(
@@ -29,7 +33,7 @@ export default class Notice {
         )
     }
 
-    static async alert (text: string, title = '提示', callback: Callback, type: NoticeTypes = 'info') {
+    static async alert (text: string, title = '提示', callback: Callback = doNothing, type: NoticeTypes = 'info') {
         return !!await MessageBox
             .alert(text, title,
                 {
@@ -41,15 +45,19 @@ export default class Notice {
     }
 
     static async confirm (text: string, title = '提示', type: NoticeTypes = 'warning', button: Array<string> = ['确定', '取消']) {
-        return !!await MessageBox
-            .confirm(text, title,
-                {
-                    confirmButtonText: button[0],
-                    cancelButtonText: button[1],
-                    distinguishCancelAndClose: true,
-                    type: type
-                }
-            )
+        try {
+            return !!await MessageBox
+                .confirm(text, title,
+                    {
+                        confirmButtonText: button[0],
+                        cancelButtonText: button[1],
+                        distinguishCancelAndClose: true,
+                        type: type
+                    }
+                )
+        } catch (e) {
+            return false
+        }
     }
 
     static async prompt (text: string, title = '提示') {

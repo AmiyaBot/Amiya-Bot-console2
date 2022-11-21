@@ -1,9 +1,9 @@
 import HttpRequest from '@/lib/http'
 import { StringDict } from '@/lib/common'
 
-const cosHost = 'https://cos.amiyabot.com'
-const sourceHost = 'https://server.amiyabot.com:8020'
-
+export const cosHost = 'https://cos.amiyabot.com'
+// export const sourceHost = 'https://server.amiyabot.com:8020'
+export const sourceHost = 'http://127.0.0.1:8020'
 export const uploadUrl = sourceHost + '/uploadPlugin'
 
 const request = new HttpRequest()
@@ -26,7 +26,7 @@ function getPluginPostData (data: StringDict) {
         post.url = cosHost + `/${official}/${data.plugin_id}-${data.version}.zip`
         post.packageName = `${data.plugin_id}-${data.version}.zip`
     } else {
-        post.url = cosHost + `/${custom}/${data.file}`
+        post.url = cosHost + `/${custom}/${data.plugin_id}/${data.file}`
         post.packageName = data.file
     }
 
@@ -82,6 +82,13 @@ export async function getCustomPluginShop () {
 export async function delCustomPlugin (data: StringDict) {
     return await source.post({
         url: '/deletePlugin',
+        data
+    })
+}
+
+export async function registerPluginId (data: StringDict) {
+    return await source.post({
+        url: '/registerPluginId',
         data
     })
 }
