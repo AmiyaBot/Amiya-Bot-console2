@@ -1,3 +1,4 @@
+import Notice from '@/lib/message'
 import HttpRequest from '@/lib/http'
 import { StringDict } from '@/lib/common'
 
@@ -46,6 +47,10 @@ export async function getPluginShop () {
 }
 
 export async function installPlugin (data: StringDict) {
+    await source.post({
+        url: '/recordInstalledCount',
+        data
+    })
     return await request.post({
         url: '/plugin/installPlugin',
         data: getPluginPostData(data)
@@ -53,17 +58,21 @@ export async function installPlugin (data: StringDict) {
 }
 
 export async function upgradePlugin (data: StringDict) {
-    return await request.post({
-        url: '/plugin/upgradePlugin',
-        data: getPluginPostData(data)
-    })
+    if (await Notice.confirm('更新插件前请备份插件的一些配置文件，以防信息丢失。', '请注意', 'warning', ['更新', '去备份'])) {
+        return await request.post({
+            url: '/plugin/upgradePlugin',
+            data: getPluginPostData(data)
+        })
+    }
 }
 
 export async function uninstallPlugin (data: StringDict) {
-    return await request.post({
-        url: '/plugin/uninstallPlugin',
-        data
-    })
+    if (await Notice.confirm('确定卸载插件【' + data.name + '】')) {
+        return await request.post({
+            url: '/plugin/uninstallPlugin',
+            data
+        })
+    }
 }
 
 export async function commitToCustomShop (data: StringDict) {
@@ -86,9 +95,11 @@ export async function delCustomPlugin (data: StringDict) {
     })
 }
 
-export async function registerPluginId (data: StringDict) {
-    return await source.post({
-        url: '/registerPluginId',
-        data
+export async function getHistoryVersion (data: StringDict) {
+    return await source.get({
+        url: '/getHistoryVersion',
+        data: {
+            plugin_id: data.plugin_id
+        }
     })
 }

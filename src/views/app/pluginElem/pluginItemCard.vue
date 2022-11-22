@@ -37,19 +37,25 @@
                         {{ item.description }}
                     </div>
                 </div>
+                <div v-if="downloadCount !== undefined">
+                    <div>下载次数：</div>
+                    <div>
+                        {{ downloadCount }}
+                    </div>
+                </div>
             </div>
         </div>
         <div class="plugin-opt">
             <div>
                 <el-button type="primary" link @click="dialog.show()">插件文档</el-button>
             </div>
-            <div>
+            <div class="button">
                 <slot name="button"></slot>
             </div>
         </div>
     </div>
 
-    <v-form-dialog :title="'插件文档：' + item.name" ref="dialog">
+    <v-form-dialog :title="'插件文档：' + item.name" ref="dialog" :append-to-body="true">
         <div class="markdown-body" v-html="pluginDoc()"></div>
     </v-form-dialog>
 </template>
@@ -84,12 +90,14 @@ export interface PluginItem extends StringDict {
         }
     },
     props: {
-        item: Object
+        item: Object,
+        downloadCount: Number
     }
 })
 export default class PluginItemCard extends Vue {
     item!: PluginItem
     dialog!: VFormDialog
+    downloadCount!: number
 
     sourceHost = sourceHost
 
@@ -140,12 +148,8 @@ export default class PluginItemCard extends Vue {
         display: flex;
 
         & > div:first-child {
-            width: 45px;
+            min-width: 45px;
             color: var(--el-color-info-dark-2);
-        }
-
-        & > div:last-child {
-            width: calc(100% - 45px);
         }
     }
 
@@ -153,6 +157,13 @@ export default class PluginItemCard extends Vue {
         margin-top: 20px;
         display: flex;
         justify-content: space-between;
+    }
+}
+</style>
+<style lang="scss">
+.plugin-opt {
+    .button .el-link:not(:last-child) {
+        margin-right: 10px
     }
 }
 </style>

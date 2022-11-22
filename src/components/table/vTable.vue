@@ -4,7 +4,8 @@
             <div>
                 <slot name="header"></slot>
             </div>
-            <el-input style="width: 520px" v-model="searchInput" placeholder="输入任意值搜索..." @change="executeLoad(true)">
+            <el-input style="width: 520px" v-model="searchInput" placeholder="输入任意值搜索..."
+                      @change="executeLoad(true)">
                 <template #append>
                     <el-button :icon="searchIcon"/>
                 </template>
@@ -198,49 +199,4 @@ export default class VTable extends Vue {
 </script>
 
 <style lang="scss">
-.v-table {
-    .header-area {
-        margin-bottom: 20px;
-        display: flex;
-        justify-content: space-between;
-    }
-
-    .v-table-header {
-        font-weight: 100;
-        color: var(--c-main);
-    }
-
-    .v-bottom {
-        margin-top: 10px;
-        display: flex;
-        align-items: center;
-
-        .v-bottom-icon {
-            color: var(--el-text-color-regular);
-            cursor: pointer;
-        }
-
-        .v-bottom-icon:hover {
-            color: var(--c-main);
-        }
-    }
-
-    .cell {
-        width: auto;
-        white-space: nowrap;
-        display: flex;
-    }
-
-    .cell > .el-link:not(:last-child) {
-        margin-right: 10px;
-    }
-
-    .el-pagination__sizes {
-        margin-left: 15px;
-    }
-
-    .el-pagination__jump {
-        margin-left: 0;
-    }
-}
 </style>

@@ -7,7 +7,10 @@
     </div>
 
     <div class="plugin-list" v-if="pluginsList.length">
-        <plugin-item-card v-for="(item, index) in pluginsList" :key="index" :item="item">
+        <plugin-item-card v-for="(item, index) in pluginsList"
+                          :key="index"
+                          :item="item"
+                          :download-count="item.plugin_info.download_num">
             <template #version>
                 <div style="display: flex;align-items: center;">
                     {{ item.curr_version }}{{ item.version }}
@@ -20,18 +23,19 @@
                 </div>
             </template>
             <template #button>
-                <el-link :underline="false" type="success" @click="upgrade(item)" v-if="item.upgrade">
-                    更新
-                </el-link>
-                <el-link :underline="false" type="primary" @click="install(item)" v-if="!item.installed">
-                    安装
-                </el-link>
-                <el-link :underline="false" type="danger" @click="uninstall(item)" style="margin-left: 10px" v-else>
-                    卸载
-                </el-link>
-                <el-link :underline="false" type="danger" @click="deletePlugin(item)" style="margin-left: 10px">
-                    下架插件
-                </el-link>
+                <el-link :underline="false" type="success" @click="upgrade(item)" v-if="item.upgrade">更新</el-link>
+                <el-link :underline="false" type="primary" @click="install(item)" v-if="!item.installed">安装</el-link>
+                <el-link :underline="false" type="danger" @click="uninstall(item)" v-else>卸载</el-link>
+                <el-popover placement="right-start" trigger="hover" width="150px">
+                    <template #default>
+                        <el-link :underline="false" type="primary" @click="getHistory(item)">历史版本</el-link>
+                        <br/>
+                        <el-link :underline="false" type="danger" @click="deletePlugin(item)">下架插件</el-link>
+                    </template>
+                    <template #reference>
+                        <el-link :underline="false" type="warning">管理</el-link>
+                    </template>
+                </el-popover>
             </template>
         </plugin-item-card>
     </div>
@@ -100,6 +104,33 @@
             </el-button>
         </template>
     </v-form-dialog>
+    <v-dialog title="插件历史版本" ref="history">
+        <div class="v-table">
+            <el-table :data="pluginsHistory" style="width: 100%" height="250" header-cell-class-name="v-table-header">
+                <el-table-column prop="name" label="插件名"/>
+                <el-table-column prop="version" label="版本"/>
+                <el-table-column prop="upload_time" label="上传时间"/>
+                <el-table-column label="操作" fixed="right">
+                    <template #default="scope">
+                        <el-link :underline="false" type="primary"
+                                 v-if="currPlugin.version !== scope.row.installed_version"
+                                 @click="install(scope.row)">安装此版本
+                        </el-link>
+                        <el-link :underline="false" type="info" disabled v-else>已安装</el-link>
+                        <el-popover placement="bottom-start" width="200" trigger="hover">
+                            <template #default>
+                                <plugin-item-card :item="scope.row"></plugin-item-card>
+                            </template>
+                            <template #reference>
+                                <el-link :underline="false" type="success">查看</el-link>
+                            </template>
+                        </el-popover>
+                        <el-link :underline="false" type="danger" @click="deleteHistory(scope.row)">下架</el-link>
+                    </template>
+                </el-table-column>
+            </el-table>
+        </div>
+    </v-dialog>
 </template>
 
 <script lang="ts">
@@ -108,11 +139,12 @@ import {
     uploadUrl,
     getInstalledPlugin, getCustomPluginShop,
     commitToCustomShop, delCustomPlugin,
-    installPlugin, upgradePlugin, uninstallPlugin
+    installPlugin, upgradePlugin, uninstallPlugin, getHistoryVersion
 } from '@/request/plugin'
 import { CaretTop, CaretBottom, UploadFilled } from '@element-plus/icons-vue'
 
 import Notice from '@/lib/message'
+import VDialog from '@/components/v-dialog.vue'
 import VFormDialog from '@/components/v-form-dialog.vue'
 import PluginItemCard, { PluginItem } from '@/views/app/pluginElem/pluginItemCard.vue'
 import { StringDict } from '@/lib/common'
@@ -122,6 +154,7 @@ import { StringDict } from '@/lib/common'
         CaretTop,
         CaretBottom,
         UploadFilled,
+        VDialog,
         VFormDialog,
         PluginItemCard
     },
@@ -131,6 +164,9 @@ import { StringDict } from '@/lib/common'
         },
         dialog () {
             return this.$refs.dialog
+        },
+        historyDialog () {
+            return this.$refs.history
         }
     },
     data () {
@@ -144,6 +180,7 @@ import { StringDict } from '@/lib/common'
 })
 export default class ShopCustom extends Vue {
     dialog!: VFormDialog
+    historyDialog!: VDialog
 
     private form = {
         author: '',
@@ -152,6 +189,8 @@ export default class ShopCustom extends Vue {
     }
 
     private pluginsList = []
+    private pluginsHistory = []
+    private currPlugin = {}
     private uploadedPlugin: StringDict = {}
 
     public async getPlugins () {
@@ -169,6 +208,7 @@ export default class ShopCustom extends Vue {
                 item.installed = item.plugin_id in installedPlugin
                 item.upgrade = installedPlugin[item.plugin_id] ? item.version > installedPlugin[item.plugin_id] : false
                 item.higher = installedPlugin[item.plugin_id] ? item.version < installedPlugin[item.plugin_id] : false
+                item.installed_version = installedPlugin[item.plugin_id]
                 if (item.upgrade) {
                     item.curr_version = installedPlugin[item.plugin_id] + ' >> '
                 }
@@ -177,6 +217,15 @@ export default class ShopCustom extends Vue {
                 }
                 return true
             })
+        }
+    }
+
+    public async getHistory (item: StringDict) {
+        const res = await getHistoryVersion(item)
+        if (res) {
+            this.currPlugin = item
+            this.pluginsHistory = res.data
+            this.historyDialog.show()
         }
     }
 
@@ -225,9 +274,24 @@ export default class ShopCustom extends Vue {
         }
     }
 
+    public async deleteHistory (item: StringDict) {
+        const key = await Notice.prompt('输入插件密钥')
+        if (key) {
+            const res = await delCustomPlugin({
+                ...item,
+                force_delete: false,
+                secret_key: key
+            })
+            if (res) {
+                await this.getHistory(item)
+            }
+        }
+    }
+
     public async install (item: StringDict) {
         const res = await installPlugin(item)
         if (res) {
+            this.historyDialog.hide()
             await this.getPlugins()
         }
     }
