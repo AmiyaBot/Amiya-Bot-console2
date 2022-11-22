@@ -42,7 +42,7 @@
     <el-empty v-else description="暂无创意插件，敬请期待..."/>
 
     <v-form-dialog title="上传创意插件" :form="form" ref="dialog" :width="1200">
-        <el-upload drag :action="uploadUrl" :show-file-list="false" accept="application/zip"
+        <el-upload drag :action="uploadUrl" :show-file-list="false"
                    :on-success="uploaded"
                    :on-error="uploadFail"
                    :before-upload="beforeUpload">
