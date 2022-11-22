@@ -86,7 +86,7 @@ export interface PluginItem extends StringDict {
             return this.$refs.dialog
         },
         logo () {
-            return this.item.plugin_type === 'official' ? this.item.logo : (this.sourceHost + '/image?path=' + this.item.logo)
+            return this.item.logo.startsWith('data:image/png;') ? this.item.logo : (this.sourceHost + '/image?path=' + this.item.logo)
         }
     },
     props: {
