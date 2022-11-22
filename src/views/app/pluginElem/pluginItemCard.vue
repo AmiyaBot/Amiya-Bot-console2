@@ -3,7 +3,7 @@
         <div>
             <div class="plugin-title">
                 <div class="plugin-icon">
-                    <img :src="item.logo" alt="logo" v-if="item.logo">
+                    <img :src="logo" alt="logo" v-if="logo">
                 </div>
                 <div class="plugin-info">
                     <div style="display: flex;align-items: center;">
@@ -37,19 +37,25 @@
                         {{ item.description }}
                     </div>
                 </div>
+                <div v-if="downloadCount !== undefined">
+                    <div>下载次数：</div>
+                    <div>
+                        {{ downloadCount }}
+                    </div>
+                </div>
             </div>
         </div>
         <div class="plugin-opt">
             <div>
-                <el-button type="success" link @click="dialog.show()">插件文档</el-button>
+                <el-button type="primary" link @click="dialog.show()">插件文档</el-button>
             </div>
-            <div>
+            <div class="button">
                 <slot name="button"></slot>
             </div>
         </div>
     </div>
 
-    <v-form-dialog :title="'插件文档：' + item.name" ref="dialog">
+    <v-form-dialog :title="'插件文档：' + item.name" ref="dialog" :append-to-body="true">
         <div class="markdown-body" v-html="pluginDoc()"></div>
     </v-form-dialog>
 </template>
@@ -57,6 +63,7 @@
 <script lang="ts">
 import { marked } from 'marked'
 import { Options, Vue } from 'vue-class-component'
+import { sourceHost } from '@/request/plugin'
 import { StringDict } from '@/lib/common'
 
 import VFormDialog from '@/components/v-form-dialog.vue'
@@ -77,15 +84,22 @@ export interface PluginItem extends StringDict {
     computed: {
         dialog () {
             return this.$refs.dialog
+        },
+        logo () {
+            return this.item.plugin_type === 'official' ? this.item.logo : (this.sourceHost + '/image?path=' + this.item.logo)
         }
     },
     props: {
-        item: Object
+        item: Object,
+        downloadCount: Number
     }
 })
 export default class PluginItemCard extends Vue {
     item!: PluginItem
     dialog!: VFormDialog
+    downloadCount!: number
+
+    sourceHost = sourceHost
 
     public pluginDoc () {
         return marked.parse(this.item.document)
@@ -134,12 +148,8 @@ export default class PluginItemCard extends Vue {
         display: flex;
 
         & > div:first-child {
-            width: 45px;
+            min-width: 45px;
             color: var(--el-color-info-dark-2);
-        }
-
-        & > div:last-child {
-            width: calc(100% - 45px);
         }
     }
 
@@ -147,6 +157,13 @@ export default class PluginItemCard extends Vue {
         margin-top: 20px;
         display: flex;
         justify-content: space-between;
+    }
+}
+</style>
+<style lang="scss">
+.plugin-opt {
+    .button .el-link:not(:last-child) {
+        margin-right: 10px
     }
 }
 </style>
