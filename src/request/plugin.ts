@@ -3,8 +3,8 @@ import HttpRequest from '@/lib/http'
 import { StringDict } from '@/lib/common'
 
 export const cosHost = 'https://cos.amiyabot.com'
-// export const sourceHost = 'https://server.amiyabot.com:8020'
-export const sourceHost = 'http://127.0.0.1:8020'
+export const sourceHost = 'https://server.amiyabot.com:8020'
+// export const sourceHost = 'http://127.0.0.1:8020'
 export const uploadUrl = sourceHost + '/uploadPlugin'
 
 const request = new HttpRequest()
