@@ -10,6 +10,7 @@
         <plugin-item-card v-for="(item, index) in pluginsList"
                           :key="index"
                           :item="item"
+                          :author="item.plugin_info.author"
                           :download-count="item.plugin_info.download_num">
             <template #version>
                 <div style="display: flex;align-items: center;">

@@ -19,10 +19,10 @@
                 </div>
             </div>
             <div class="plugin-desc">
-                <div v-if="item.author">
+                <div v-if="author">
                     <div>作者：</div>
                     <div>
-                        <slot>{{ item.author }}</slot>
+                        <slot>{{ author }}</slot>
                     </div>
                 </div>
                 <div>
@@ -91,13 +91,13 @@ export interface PluginItem extends StringDict {
     },
     props: {
         item: Object,
+        author: String,
         downloadCount: Number
     }
 })
 export default class PluginItemCard extends Vue {
     item!: PluginItem
     dialog!: VFormDialog
-    downloadCount!: number
 
     sourceHost = sourceHost
 
