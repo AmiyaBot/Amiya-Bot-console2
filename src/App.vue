@@ -69,15 +69,4 @@ html, body {
     background-color: transparent !important;
     backdrop-filter: blur(10px);
 }
-
-html {
-    filter: grayscale(100%);
-    -webkit-filter: grayscale(100%);
-    -moz-filter: grayscale(100%);
-    -ms-filter: grayscale(100%);
-    -o-filter: grayscale(100%);
-    filter: url('data:image/svg+xml;utf8,#grayscale');
-    filter: progid:DXImageTransform.Microsoft.BasicImage(grayscale=1);
-    -webkit-filter: grayscale(1);
-}
 </style>
