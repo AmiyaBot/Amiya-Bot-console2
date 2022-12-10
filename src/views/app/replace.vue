@@ -64,7 +64,7 @@ import {
 } from '@/request/replace'
 import Common, { DictArray, StringDict } from '@/lib/common'
 
-import VTable, { QueryData } from '@/components/table/vTable.vue'
+import VTable, { QueryData } from '@/components/table/v-table.vue'
 import VFormDialog from '@/components/v-form-dialog.vue'
 
 @Options({

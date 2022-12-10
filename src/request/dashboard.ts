@@ -7,3 +7,12 @@ export async function getLog () {
         url: '/dashboard/getLog'
     })
 }
+
+export async function getMessageRecord (appid: string) {
+    return await request.get({
+        url: '/dashboard/getMessageRecord',
+        data: {
+            appid
+        }
+    })
+}

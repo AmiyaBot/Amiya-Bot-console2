@@ -28,7 +28,7 @@ import { Options, Vue } from 'vue-class-component'
 import { getAdminList, addAdmin, delAdmin } from '@/request/admin'
 import { StringDict } from '@/lib/common'
 
-import VTable, { QueryData } from '@/components/table/vTable.vue'
+import VTable, { QueryData } from '@/components/table/v-table.vue'
 import VFormDialog from '@/components/v-form-dialog.vue'
 
 @Options({

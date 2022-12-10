@@ -1,19 +1,10 @@
 import Notice from '@/lib/message'
 import HttpRequest from '@/lib/http'
 import { StringDict } from '@/lib/common'
-
-export const cosHost = 'https://cos.amiyabot.com'
-export const sourceHost = 'https://server.amiyabot.com:8020'
-// export const sourceHost = 'http://127.0.0.1:8020'
-export const uploadUrl = sourceHost + '/uploadPlugin'
+import { recordInstalledCount } from '@/request/remote/amiyabotServer'
+import { cosHost, cos } from '@/request/remote/cosServer'
 
 const request = new HttpRequest()
-const cos = new HttpRequest({
-    host: cosHost
-})
-const source = new HttpRequest({
-    host: sourceHost
-})
 const official = 'plugins/official'
 const custom = 'plugins/custom'
 
@@ -47,10 +38,7 @@ export async function getPluginShop () {
 }
 
 export async function installPlugin (data: StringDict) {
-    await source.post({
-        url: '/recordInstalledCount',
-        data
-    })
+    await recordInstalledCount(data)
     return await request.post({
         url: '/plugin/installPlugin',
         data: getPluginPostData(data)
@@ -73,33 +61,4 @@ export async function uninstallPlugin (data: StringDict) {
             data
         })
     }
-}
-
-export async function commitToCustomShop (data: StringDict) {
-    return await source.post({
-        url: '/commitPlugin',
-        data
-    })
-}
-
-export async function getCustomPluginShop () {
-    return await source.post({
-        url: '/getPlugins'
-    })
-}
-
-export async function delCustomPlugin (data: StringDict) {
-    return await source.post({
-        url: '/deletePlugin',
-        data
-    })
-}
-
-export async function getHistoryVersion (data: StringDict) {
-    return await source.get({
-        url: '/getHistoryVersion',
-        data: {
-            plugin_id: data.plugin_id
-        }
-    })
 }

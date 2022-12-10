@@ -137,11 +137,18 @@
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component'
 import {
-    uploadUrl,
-    getInstalledPlugin, getCustomPluginShop,
-    commitToCustomShop, delCustomPlugin,
-    installPlugin, upgradePlugin, uninstallPlugin, getHistoryVersion
+    getInstalledPlugin,
+    installPlugin,
+    upgradePlugin,
+    uninstallPlugin
 } from '@/request/plugin'
+import {
+    getCustomPluginShop,
+    commitToCustomShop,
+    delCustomPlugin,
+    getHistoryVersion,
+    uploadPluginUrl
+} from '@/request/remote/amiyabotServer'
 import { CaretTop, CaretBottom, UploadFilled } from '@element-plus/icons-vue'
 
 import Notice from '@/lib/message'
@@ -172,7 +179,7 @@ import { StringDict } from '@/lib/common'
     },
     data () {
         return {
-            uploadUrl
+            uploadUrl: uploadPluginUrl
         }
     },
     mounted () {

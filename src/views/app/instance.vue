@@ -89,7 +89,7 @@ import { Options, Vue } from 'vue-class-component'
 import { getInstanceList, submitInstance, runInstance, closeInstance, deleteInstance } from '@/request/instance'
 import Common, { StringDict } from '@/lib/common'
 
-import VTable from '@/components/table/vTable.vue'
+import VTable from '@/components/table/v-table.vue'
 import VFormDialog from '@/components/v-form-dialog.vue'
 
 @Options({

@@ -63,7 +63,7 @@
 <script lang="ts">
 import { marked } from 'marked'
 import { Options, Vue } from 'vue-class-component'
-import { sourceHost } from '@/request/plugin'
+import { amiyaBotServerHost } from '@/request/remote/amiyabotServer'
 import { StringDict } from '@/lib/common'
 
 import VFormDialog from '@/components/v-form-dialog.vue'
@@ -99,7 +99,7 @@ export default class PluginItemCard extends Vue {
     item!: PluginItem
     dialog!: VFormDialog
 
-    sourceHost = sourceHost
+    sourceHost = amiyaBotServerHost
 
     public pluginDoc () {
         return marked.parse(this.item.document)
