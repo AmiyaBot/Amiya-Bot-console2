@@ -13,8 +13,8 @@ from os.path import basename, exists, join
 from fontTools import subset
 from fontTools.ttLib import TTFont
 
-origin_path = [join('src'),  join('public')]
-ignore_dirs = ['dist', 'public', '.DS_Store', 'assets']
+origin_path = [join('src'), join('public')]
+ignore_dirs = ['dist', '.DS_Store', 'assets']
 white_endswith = ['.vue', '.md', '.txt', '.html', '.js', '.json', '.ts', '.scss', '.css', 'footstone']
 out_path = join('fonts')
 font = join('scripts', 'HarmonyOS_Sans_SC.ttf')
@@ -44,7 +44,7 @@ def read(path):
 
 
 print('读取文件中...')
-for op in origin_path
+for op in origin_path:
     read(op)
 
 print(f'正在处理 {font}')
