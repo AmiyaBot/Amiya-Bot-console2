@@ -25,7 +25,7 @@
     font-family: 'Harmony';
     font-weight: normal;
     font-style: normal;
-    src: url('https://cos.amiyabot.com/resource/HarmonyOS_Sans_SC.ttf');
+    src: url('//cos.amiyabot.com/resource/Harmony_amiyabot_console.min.woff2');
 }
 
 * {
