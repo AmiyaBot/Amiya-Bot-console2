@@ -2,10 +2,27 @@
     <div style="height: calc(100% - 20px)">
         <router-view/>
     </div>
-    <div class="icp">
+    <div class="icp" v-if="is_show_icp">
         <a href="https://beian.miit.gov.cn/" target="_blank">粤ICP备2021107697号-1</a>
     </div>
 </template>
+
+<script lang="ts">
+import { Options, Vue } from 'vue-class-component'
+
+@Options({
+    data () {
+        return {
+            is_show_icp: false
+        }
+    },
+    mounted () {
+        this.is_show_icp = location.hostname === 'console.amiyabot.com'
+    }
+})
+export default class App extends Vue {
+}
+</script>
 
 <style scoped lang="scss">
 .icp {
