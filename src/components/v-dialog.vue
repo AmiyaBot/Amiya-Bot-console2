@@ -12,7 +12,7 @@ import { Options, Vue } from 'vue-class-component'
 @Options({
     props: {
         title: String,
-        width: Number,
+        width: String,
         appendToBody: Boolean,
         labelWidth: {
             type: String,

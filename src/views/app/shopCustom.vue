@@ -1,46 +1,39 @@
 <template>
-    <el-alert
-        title="温馨提示，创意商店为非官方维护的插件商店，由网友上传。您在下载使用该插件时，应考虑它的功能安全性。使用创意插件产生的一切问题，本项目概不负责。"
-        type="error" effect="dark" :closable="false"/>
-    <div style="margin: 10px 0">
-        <el-button type="primary" @click="$refs.dialog.show()">上传创意插件</el-button>
+    <div style="margin-bottom: 10px">
+        <el-button type="danger" @click="$refs.dialog.show()">上传创意插件</el-button>
     </div>
 
-    <div class="plugin-list" v-if="pluginsList.length">
-        <plugin-item-card v-for="(item, index) in pluginsList"
-                          :key="index"
-                          :item="item"
-                          :author="item.plugin_info.author"
-                          :download-count="item.plugin_info.download_num">
-            <template #version>
-                <div style="display: flex;align-items: center;">
-                    {{ item.curr_version }}{{ item.version }}
-                    <el-icon style="color: var(--el-color-success)" v-if="item.upgrade">
-                        <CaretTop/>
-                    </el-icon>
-                    <el-icon style="color: var(--el-color-danger)" v-if="item.higher">
-                        <CaretBottom/>
-                    </el-icon>
-                </div>
-            </template>
-            <template #button>
-                <el-link :underline="false" type="success" @click="upgrade(item)" v-if="item.upgrade">更新</el-link>
-                <el-link :underline="false" type="primary" @click="install(item)" v-if="!item.installed">安装</el-link>
-                <el-link :underline="false" type="danger" @click="uninstall(item)" v-else>卸载</el-link>
-                <el-popover placement="right-start" trigger="hover" width="150px">
-                    <template #default>
-                        <el-link :underline="false" type="primary" @click="getHistory(item)">历史版本</el-link>
-                        <br/>
-                        <el-link :underline="false" type="danger" @click="deletePlugin(item)">下架插件</el-link>
-                    </template>
-                    <template #reference>
-                        <el-link :underline="false" type="warning">管理</el-link>
-                    </template>
-                </el-popover>
-            </template>
-        </plugin-item-card>
-    </div>
-    <el-empty v-else description="暂无创意插件，敬请期待..."/>
+    <slot></slot>
+
+    <template v-for="(list, author) in pluginAuthors" :key="author">
+        <div class="plugin-author">{{ author }}</div>
+        <div class="plugin-list">
+            <plugin-item-card v-for="(item, index) in list"
+                              :key="index"
+                              :item="item"
+                              :author="author"
+                              :download-count="item.plugin_info.download_num">
+                <template #version>
+                    <div style="display: flex;align-items: center;">
+                        {{ item.curr_version }}{{ item.version }}
+                        <el-icon style="color: var(--el-color-success)" v-if="item.upgrade">
+                            <CaretTop/>
+                        </el-icon>
+                        <el-icon style="color: var(--el-color-danger)" v-if="item.higher">
+                            <CaretBottom/>
+                        </el-icon>
+                    </div>
+                </template>
+                <template #button>
+                    <el-button round type="success" @click="upgrade(item)" v-if="item.upgrade">更新</el-button>
+                    <el-button round type="primary" @click="install(item)" v-if="!item.installed">安装</el-button>
+                    <el-button round type="danger" @click="uninstall(item)" v-else>卸载</el-button>
+                    <el-button round plain type="warning" @click="getHistory(item)">历史版本</el-button>
+                    <el-button round plain type="danger" @click="deletePlugin(item)">下架插件</el-button>
+                </template>
+            </plugin-item-card>
+        </div>
+    </template>
 
     <v-form-dialog title="上传创意插件" :form="form" ref="dialog" :width="1200">
         <el-upload drag :action="uploadUrl" :show-file-list="false"
@@ -105,9 +98,11 @@
             </el-button>
         </template>
     </v-form-dialog>
-    <v-dialog title="插件历史版本" ref="history">
+
+    <v-dialog title="历史版本" ref="history" :append-to-body="true">
         <div class="v-table">
-            <el-table :data="pluginsHistory" style="width: 100%" height="250" header-cell-class-name="v-table-header">
+            <el-table :data="pluginsHistory" style="width: 100%" height="250"
+                      header-cell-class-name="v-table-header">
                 <el-table-column prop="name" label="插件名"/>
                 <el-table-column prop="version" label="版本"/>
                 <el-table-column prop="upload_time" label="上传时间"/>
@@ -118,15 +113,9 @@
                                  @click="install(scope.row)">安装此版本
                         </el-link>
                         <el-link :underline="false" type="info" disabled v-else>已安装</el-link>
-                        <el-popover placement="bottom-start" width="200" trigger="hover">
-                            <template #default>
-                                <plugin-item-card :item="scope.row"></plugin-item-card>
-                            </template>
-                            <template #reference>
-                                <el-link :underline="false" type="success">查看</el-link>
-                            </template>
-                        </el-popover>
-                        <el-link :underline="false" type="danger" @click="deleteHistory(scope.row)">下架</el-link>
+                        <el-link :underline="false" type="danger" @click="deleteHistory(scope.row)">
+                            下架
+                        </el-link>
                     </template>
                 </el-table-column>
             </el-table>
@@ -155,7 +144,11 @@ import Notice from '@/lib/message'
 import VDialog from '@/components/v-dialog.vue'
 import VFormDialog from '@/components/v-form-dialog.vue'
 import PluginItemCard, { PluginItem } from '@/views/app/pluginElem/pluginItemCard.vue'
-import { StringDict } from '@/lib/common'
+import { DictArray, StringDict } from '@/lib/common'
+
+interface Authors {
+    [key: string]: DictArray
+}
 
 @Options({
     components: {
@@ -196,9 +189,9 @@ export default class ShopCustom extends Vue {
         remark: ''
     }
 
-    private pluginsList = []
-    private pluginsHistory = []
-    private currPlugin = {}
+    private pluginAuthors: Authors = {}
+    private pluginsHistory: DictArray = []
+    private currPlugin: StringDict = {}
     private uploadedPlugin: StringDict = {}
 
     public async getPlugins () {
@@ -212,7 +205,8 @@ export default class ShopCustom extends Vue {
                     installedPlugin[item.plugin_id] = item.version
                 }
             }
-            this.pluginsList = shop.data.filter((item: PluginItem) => {
+            const authors: Authors = {}
+            const pluginsList: DictArray = shop.data.filter((item: PluginItem) => {
                 item.installed = item.plugin_id in installedPlugin
                 item.upgrade = installedPlugin[item.plugin_id] ? item.version > installedPlugin[item.plugin_id] : false
                 item.higher = installedPlugin[item.plugin_id] ? item.version < installedPlugin[item.plugin_id] : false
@@ -225,6 +219,15 @@ export default class ShopCustom extends Vue {
                 }
                 return true
             })
+
+            for (const item of pluginsList) {
+                if (!authors[item.plugin_info.author]) {
+                    authors[item.plugin_info.author] = []
+                }
+                authors[item.plugin_info.author].push(item)
+            }
+
+            this.pluginAuthors = authors
         }
     }
 
@@ -321,6 +324,13 @@ export default class ShopCustom extends Vue {
 </script>
 
 <style scoped lang="scss">
+.plugin-author {
+    font-size: 16px;
+    border-left: 3px solid var(--el-color-danger);
+    padding-left: 10px;
+    margin-top: 20px;
+}
+
 .plugin-list {
     padding: 10px;
     display: flex;

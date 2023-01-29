@@ -1,63 +1,71 @@
 <template>
     <div class="plugin-item">
-        <div>
-            <div class="plugin-title">
-                <div class="plugin-icon">
-                    <img :src="logo" alt="logo" v-if="logo">
-                </div>
-                <div class="plugin-info">
-                    <div style="display: flex;align-items: center;">
-                        {{ item.name }}&nbsp;
-                        <el-tag v-if="item.plugin_type === 'official'" size="small" type="success" effect="dark">
-                            <span style="font-size: 12px">官方</span>
-                        </el-tag>
-                        <el-tag v-else size="small" effect="dark">
-                            <span style="font-size: 12px">创意</span>
-                        </el-tag>
-                        <slot name="info"></slot>
-                    </div>
-                </div>
+        <div class="plugin-title" @click="dialog.show()">
+            <div class="plugin-icon">
+                <img :src="logo" alt="logo" v-if="logo">
             </div>
-            <div class="plugin-desc">
-                <div v-if="author">
-                    <div>作者：</div>
-                    <div>
-                        <slot>{{ author }}</slot>
-                    </div>
+            <div class="plugin-info">
+                <div class="plugin-name">
+                    <div>{{ item.name }}</div>
+                    <div class="official-icon" v-if="item.plugin_type === 'official'"></div>
                 </div>
-                <div>
-                    <div>版本：</div>
-                    <div>
-                        <slot name="version">{{ item.version }}</slot>
-                    </div>
+                <div style="color: var(--el-color-primary)">
+                    <slot name="version">{{ item.version }}</slot>
                 </div>
-                <div v-if="item.description">
-                    <div>描述：</div>
-                    <div>
-                        {{ item.description }}
-                    </div>
-                </div>
-                <div v-if="downloadCount !== undefined">
-                    <div>下载次数：</div>
-                    <div>
-                        {{ downloadCount }}
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="plugin-opt">
-            <div>
-                <el-button type="primary" link @click="dialog.show()">插件文档</el-button>
-            </div>
-            <div class="button">
-                <slot name="button"></slot>
             </div>
         </div>
     </div>
 
-    <v-form-dialog :title="'插件文档：' + item.name" ref="dialog" :append-to-body="true">
-        <div class="markdown-body" v-html="pluginDoc()"></div>
-    </v-form-dialog>
+    <v-dialog custom-class="plugin-detail" ref="dialog" :append-to-body="true" :show-close="false" width="60%">
+        <div class="plugin-detail-header">
+            <div class="plugin-detail-title">
+                <div class="plugin-icon detail">
+                    <img :src="logo" alt="logo" v-if="logo">
+                </div>
+                <div>
+                    <div class="plugin-name detail">
+                        <div style="color: var(--el-color-primary)">{{ item.name }}</div>
+                        <div class="official-icon" v-if="item.plugin_type === 'official'"></div>
+                    </div>
+                    <div class="plugin-detail-info">
+                        <div>
+                            <el-icon>
+                                <Discount/>
+                            </el-icon>
+                            <div>版本：</div>
+                            <slot name="version">{{ item.version }}</slot>
+                        </div>
+                        <div v-if="author">
+                            <el-icon>
+                                <User/>
+                            </el-icon>
+                            <div>作者：</div>
+                            <div>
+                                <slot>{{ author }}</slot>
+                            </div>
+                        </div>
+                        <div v-if="downloadCount !== undefined">
+                            <el-icon>
+                                <Download/>
+                            </el-icon>
+                            <div>累计下载次数：</div>
+                            <div>
+                                {{ downloadCount }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <slot name="button"></slot>
+            </div>
+        </div>
+        <div class="plugin-desc">{{ item.description }}</div>
+        <el-divider content-position="left">插件文档</el-divider>
+        <div class="plugin-doc">
+            <div class="markdown-body" v-html="pluginDoc()"></div>
+        </div>
+    </v-dialog>
 </template>
 
 <script lang="ts">
@@ -65,8 +73,9 @@ import { marked } from 'marked'
 import { Options, Vue } from 'vue-class-component'
 import { amiyaBotServerHost } from '@/request/remote/amiyabotServer'
 import { StringDict } from '@/lib/common'
+import { Discount, User, Download } from '@element-plus/icons-vue'
 
-import VFormDialog from '@/components/v-form-dialog.vue'
+import VDialog from '@/components/v-dialog.vue'
 
 export interface PluginItem extends StringDict {
     'name': string
@@ -79,14 +88,17 @@ export interface PluginItem extends StringDict {
 
 @Options({
     components: {
-        VFormDialog
+        VDialog,
+        Discount,
+        User,
+        Download
     },
     computed: {
         dialog () {
             return this.$refs.dialog
         },
         logo () {
-            return this.item.logo.startsWith('data:image/png;') ? this.item.logo : (this.sourceHost + '/image?path=' + this.item.logo)
+            return this.item.logo.startsWith('data:image/png;') ? this.item.logo : (amiyaBotServerHost + '/image?path=' + this.item.logo)
         }
     },
     props: {
@@ -97,9 +109,7 @@ export interface PluginItem extends StringDict {
 })
 export default class PluginItemCard extends Vue {
     item!: PluginItem
-    dialog!: VFormDialog
-
-    sourceHost = amiyaBotServerHost
+    dialog!: VDialog
 
     public pluginDoc () {
         return marked.parse(this.item.document)
@@ -109,61 +119,112 @@ export default class PluginItemCard extends Vue {
 
 <style scoped lang="scss">
 .plugin-item {
-    width: 300px;
-    border: 1px solid var(--el-card-border-color);
-    box-shadow: var(--el-box-shadow-light);
-    border-radius: var(--el-card-border-radius);
+    width: 240px;
     margin: 0 10px 10px 0;
-    padding: 10px 15px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    transition: all 150ms ease-in-out;
 
     .plugin-title {
         display: flex;
         align-items: center;
-        margin-bottom: 20px;
-
-        .plugin-icon {
-            width: 35px;
-            height: 35px;
-            margin-right: 10px;
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            overflow: hidden;
-
-            img {
-                width: 100%;
-            }
-        }
+        cursor: pointer;
 
         .plugin-info {
             display: flex;
             flex-direction: column;
         }
     }
+}
 
-    .plugin-desc > div {
+.plugin-detail-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    .plugin-detail-title {
         display: flex;
+        align-items: center;
+    }
+}
 
-        & > div:first-child {
-            min-width: 45px;
-            color: var(--el-color-info-dark-2);
+.plugin-icon {
+    width: 35px;
+    height: 35px;
+    margin-right: 10px;
+    border-radius: 4px;
+    border: 1px solid var(--el-card-border-color);
+    box-shadow: var(--el-box-shadow-light);
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+
+    &.detail {
+        width: 50px;
+        height: 50px;
+    }
+
+    img {
+        width: 100%;
+    }
+}
+
+.plugin-name {
+    display: flex;
+    align-items: center;
+
+    &.detail > div {
+        font-size: 20px;
+    }
+}
+
+.official-icon {
+    margin-left: 3px;
+    padding: 10px;
+    background: url(../../../assets/icon/official.svg) center / 20px no-repeat;
+}
+
+.plugin-desc {
+    margin: 30px 0;
+}
+
+.plugin-detail-info {
+    display: flex;
+
+    & > div {
+        margin-top: 5px;
+        margin-right: 10px;
+        padding-right: 10px;
+        border-right: 1px solid var(--el-border-color);
+        display: flex;
+        align-items: center;
+
+        .el-icon {
+            font-size: 14px;
+            margin-right: 3px;
         }
     }
 
-    .plugin-opt {
-        margin-top: 20px;
-        display: flex;
-        justify-content: space-between;
+    & > div:last-child {
+        border-right: none;
     }
+}
+
+.plugin-doc {
+    max-height: 400px;
+    overflow: auto;
 }
 </style>
 <style lang="scss">
-.plugin-opt {
-    .button .el-link:not(:last-child) {
-        margin-right: 10px
+.plugin-detail {
+    & > header,
+    & > footer {
+        display: none;
+    }
+
+    .el-dialog__body {
+        color: var(--el-color-black);
     }
 }
 </style>

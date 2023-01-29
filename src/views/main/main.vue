@@ -87,7 +87,7 @@
                     <el-input v-model="settingForm.authKey" placeholder="请填写服务密匙" show-password/>
                 </el-form-item>
             </el-form>
-            <el-button type="success" @click="testAndSave">测试并连接</el-button>
+            <el-button type="success" @click="start">开始连接</el-button>
         </el-card>
     </div>
 </template>
@@ -142,7 +142,7 @@ export default class Main extends Vue {
         location.reload()
     }
 
-    public async testAndSave () {
+    public async start () {
         if (!this.settingForm.host.startsWith('http')) {
             this.settingForm.host = 'http://' + this.settingForm.host
         }

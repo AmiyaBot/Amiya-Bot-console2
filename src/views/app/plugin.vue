@@ -3,7 +3,7 @@
         <div class="plugin-list" v-if="pluginList.length">
             <plugin-item-card v-for="(item, index) in pluginList" :key="index" :item="item">
                 <template #button>
-                    <el-button type="danger" link @click="uninstall(item)">卸载</el-button>
+                    <el-button round type="danger" @click="uninstall(item)">卸载</el-button>
                 </template>
             </plugin-item-card>
         </div>

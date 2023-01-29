@@ -1,39 +1,30 @@
 <template>
     <div>
-        <el-tabs v-model="activeName" class="demo-tabs">
-            <el-tab-pane label="官方商店" name="first">
-                <div class="plugin-list">
-                    <plugin-item-card v-for="(item, index) in officialPlugins" :key="index" :item="item">
-                        <template #version>
-                            <div style="display: flex;align-items: center;">
-                                {{ item.curr_version }}{{ item.version }}
-                                <el-icon style="color: var(--el-color-success)" v-if="item.upgrade">
-                                    <CaretTop/>
-                                </el-icon>
-                                <el-icon style="color: var(--el-color-danger)" v-if="item.higher">
-                                    <CaretBottom/>
-                                </el-icon>
-                            </div>
-                        </template>
-                        <template #button>
-                            <el-link :underline="false" type="success" @click="upgrade(item)" v-if="item.upgrade">
-                                更新
-                            </el-link>
-                            <el-link :underline="false" type="primary" @click="install(item)" v-if="!item.installed">
-                                安装
-                            </el-link>
-                            <el-link :underline="false" type="danger" @click="uninstall(item)" style="margin-left: 10px"
-                                     v-else>
-                                卸载
-                            </el-link>
-                        </template>
-                    </plugin-item-card>
-                </div>
-            </el-tab-pane>
-            <el-tab-pane label="创意商店" name="second">
-                <shop-custom></shop-custom>
-            </el-tab-pane>
-        </el-tabs>
+        <shop-custom>
+            <div class="plugin-author">官方插件</div>
+            <div class="plugin-list">
+                <plugin-item-card v-for="(item, index) in officialPlugins" :key="index" :item="item">
+                    <template #version>
+                        <div style="display: flex;align-items: center;">
+                            {{ item.curr_version }}{{ item.version }}
+                            <el-icon style="color: var(--el-color-success)" v-if="item.upgrade">
+                                <CaretTop/>
+                            </el-icon>
+                            <el-icon style="color: var(--el-color-danger)" v-if="item.higher">
+                                <CaretBottom/>
+                            </el-icon>
+                        </div>
+                    </template>
+                    <template #button>
+                        <el-button round type="success" @click="upgrade(item)" v-if="item.upgrade">更新</el-button>
+                        <el-button round type="primary" @click="install(item)" v-if="!item.installed">安装</el-button>
+                        <el-button round type="danger" @click="uninstall(item)" style="margin-left: 10px" v-else>
+                            卸载
+                        </el-button>
+                    </template>
+                </plugin-item-card>
+            </div>
+        </shop-custom>
     </div>
 </template>
 
@@ -58,7 +49,6 @@ import ShopCustom from '@/views/app/shopCustom.vue'
     }
 })
 export default class Shop extends Vue {
-    public activeName = 'first'
     public officialPlugins = []
 
     public async getShopList () {
@@ -111,6 +101,13 @@ export default class Shop extends Vue {
 </script>
 
 <style scoped lang="scss">
+.plugin-author {
+    font-size: 16px;
+    border-left: 3px solid var(--el-color-success);
+    padding-left: 10px;
+    margin-top: 20px;
+}
+
 .plugin-list {
     padding: 10px;
     display: flex;
