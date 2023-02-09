@@ -1,6 +1,6 @@
 <template>
-    <div class="plugin-item">
-        <div class="plugin-title" @click="dialog.show()">
+    <div class="plugin-item" :class="{ 'detail-mode': detailMode }" @click="dialog.show()">
+        <div class="plugin-title">
             <div class="plugin-icon">
                 <img :src="logo" alt="logo" v-if="logo">
             </div>
@@ -13,6 +13,9 @@
                     <slot name="version">{{ item.version }}</slot>
                 </div>
             </div>
+        </div>
+        <div v-if="detailMode">
+            <div class="desc">{{ item.description }}</div>
         </div>
     </div>
 
@@ -53,6 +56,9 @@
                                 {{ downloadCount }}
                             </div>
                         </div>
+                        <div>
+                            <div>{{ item.upload_time }}</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -61,10 +67,19 @@
             </div>
         </div>
         <div class="plugin-desc">{{ item.description }}</div>
-        <el-divider content-position="left">插件文档</el-divider>
-        <div class="plugin-doc">
-            <div class="markdown-body" v-html="pluginDoc()"></div>
-        </div>
+        <el-card>
+            <template #header>
+                <div style="display: flex;align-items: center;">
+                    <el-icon>
+                        <Collection/>
+                    </el-icon>
+                    <span style="margin-left: 3px">插件文档</span>
+                </div>
+            </template>
+            <div class="plugin-doc">
+                <div class="markdown-body" v-html="pluginDoc()"></div>
+            </div>
+        </el-card>
     </v-dialog>
 </template>
 
@@ -73,7 +88,7 @@ import { marked } from 'marked'
 import { Options, Vue } from 'vue-class-component'
 import { amiyaBotServerHost } from '@/request/remote/amiyabotServer'
 import { StringDict } from '@/lib/common'
-import { Discount, User, Download } from '@element-plus/icons-vue'
+import { Discount, User, Download, Collection } from '@element-plus/icons-vue'
 
 import VDialog from '@/components/v-dialog.vue'
 
@@ -91,7 +106,8 @@ export interface PluginItem extends StringDict {
         VDialog,
         Discount,
         User,
-        Download
+        Download,
+        Collection
     },
     computed: {
         dialog () {
@@ -104,7 +120,8 @@ export interface PluginItem extends StringDict {
     props: {
         item: Object,
         author: String,
-        downloadCount: Number
+        downloadCount: Number,
+        detailMode: Boolean
     }
 })
 export default class PluginItemCard extends Vue {
@@ -120,16 +137,33 @@ export default class PluginItemCard extends Vue {
 <style scoped lang="scss">
 .plugin-item {
     width: 240px;
-    margin: 0 10px 10px 0;
+    padding: 5px;
+    margin: 0 5px;
+    border-radius: 4px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     transition: all 150ms ease-in-out;
+    cursor: pointer;
+
+    &.detail-mode {
+        width: fit-content;
+        margin: 0;
+        padding: 10px 30px 10px 10px;
+        box-shadow: 0 0 5px 2px #d3d3d3;
+
+        .desc {
+            margin-top: 10px;
+        }
+    }
+
+    &:hover {
+        box-shadow: 0 0 5px 2px #d3d3d3;
+    }
 
     .plugin-title {
         display: flex;
         align-items: center;
-        cursor: pointer;
 
         .plugin-info {
             display: flex;
@@ -191,6 +225,7 @@ export default class PluginItemCard extends Vue {
 
 .plugin-detail-info {
     display: flex;
+    color: #646464;
 
     & > div {
         margin-top: 5px;

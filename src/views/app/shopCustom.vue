@@ -1,82 +1,90 @@
 <template>
-    <div style="margin-bottom: 10px">
+    <div class="header-panel">
         <el-button type="danger" @click="$refs.dialog.show()">上传创意插件</el-button>
+        <el-input style="width: 520px" v-model="searchInput" placeholder="输入任意值搜索创意插件..."
+                  @change="searchPlugins()">
+            <template #append>
+                <el-button :icon="searchIcon"/>
+            </template>
+        </el-input>
     </div>
 
-    <slot></slot>
+    <div class="shop-panel">
+        <slot></slot>
 
-    <template v-for="(list, author) in pluginAuthors" :key="author">
-        <div class="plugin-author">{{ author }}</div>
-        <div class="plugin-list">
-            <plugin-item-card v-for="(item, index) in list"
-                              :key="index"
-                              :item="item"
-                              :author="author"
-                              :download-count="item.plugin_info.download_num">
-                <template #version>
-                    <div style="display: flex;align-items: center;">
-                        {{ item.curr_version }}{{ item.version }}
-                        <el-icon style="color: var(--el-color-success)" v-if="item.upgrade">
-                            <CaretTop/>
-                        </el-icon>
-                        <el-icon style="color: var(--el-color-danger)" v-if="item.higher">
-                            <CaretBottom/>
-                        </el-icon>
-                    </div>
-                </template>
-                <template #button>
-                    <el-button round type="success" @click="upgrade(item)" v-if="item.upgrade">更新</el-button>
-                    <el-button round type="primary" @click="install(item)" v-if="!item.installed">安装</el-button>
-                    <el-button round type="danger" @click="uninstall(item)" v-else>卸载</el-button>
-                    <el-button round plain type="warning" @click="getHistory(item)">历史版本</el-button>
-                    <el-button round plain type="danger" @click="deletePlugin(item)">下架插件</el-button>
-                </template>
-            </plugin-item-card>
-        </div>
-    </template>
+        <template v-for="(list, author) in pluginShowList" :key="author">
+            <div class="plugin-author">{{ author }}</div>
+            <div class="plugin-list">
+                <plugin-item-card v-for="(item, index) in list"
+                                  :key="index"
+                                  :item="item"
+                                  :author="author"
+                                  :download-count="item.plugin_info.download_num">
+                    <template #version>
+                        <div style="display: flex;align-items: center;">
+                            {{ item.curr_version }}{{ item.version }}
+                            <el-icon style="color: var(--el-color-success)" v-if="item.upgrade">
+                                <CaretTop/>
+                            </el-icon>
+                            <el-icon style="color: var(--el-color-danger)" v-if="item.higher">
+                                <CaretBottom/>
+                            </el-icon>
+                        </div>
+                    </template>
+                    <template #button>
+                        <el-button round type="success" @click="upgrade(item)" v-if="item.upgrade">更新</el-button>
+                        <el-button round type="primary" @click="install(item)" v-if="!item.installed">安装</el-button>
+                        <el-button round type="danger" @click="uninstall(item)" v-else>卸载</el-button>
+                        <el-button round plain type="warning" @click="getHistory(item)">历史版本</el-button>
+                        <el-button round plain type="danger" @click="deletePlugin(item)">下架插件</el-button>
+                    </template>
+                </plugin-item-card>
+            </div>
+        </template>
+    </div>
 
     <v-form-dialog title="上传创意插件" :form="form" ref="dialog" :width="1200">
-        <el-upload drag :action="uploadUrl" :show-file-list="false"
-                   :on-success="uploaded"
-                   :on-error="uploadFail"
-                   :before-upload="beforeUpload">
-            <el-icon class="el-icon--upload">
-                <upload-filled/>
-            </el-icon>
-            <div class="el-upload__text">
-                拖动插件到此处或<em>点击上传</em>解析插件信息
+        <div class="upload-panel">
+            <el-upload drag :action="uploadUrl" :show-file-list="false"
+                       :on-success="uploaded"
+                       :on-error="uploadFail"
+                       :before-upload="beforeUpload">
+                <el-icon class="el-icon--upload">
+                    <upload-filled/>
+                </el-icon>
+                <div class="el-upload__text">
+                    拖动插件到此处或<em>点击上传</em>解析插件信息
+                </div>
+                <template #tip>
+                    <div class="el-upload__tip">
+                        仅支持通过 zip 打包的插件，大小不超过50MB。上传超大插件请联系开发者获得帮助。
+                    </div>
+                </template>
+            </el-upload>
+            <div class="uploaded-plugin">
+                <el-alert class="upload-status" title="解析成功" show-icon type="success" v-if="isUpload"
+                          :closable="false"/>
+                <el-alert class="upload-status" title="请上传插件进行解析" show-icon type="info" v-else
+                          :closable="false"/>
+                <plugin-item-card :item="uploadedPlugin" :on-list="false" v-if="isUpload" :detail-mode="true"/>
             </div>
-            <template #tip>
-                <div class="el-upload__tip">
-                    仅支持通过 zip 打包的插件，大小不超过50MB。上传超大插件请联系开发者获得帮助。
-                </div>
-            </template>
-        </el-upload>
-        <el-alert class="upload-status" title="解析成功" show-icon type="success" v-if="isUpload"
-                  :closable="false"/>
-        <el-alert class="upload-status" title="请上传插件进行解析" show-icon type="info" v-else
-                  :closable="false"/>
-        <div class="uploaded-plugin">
+        </div>
+        <div class="upload-result">
             <template v-if="isUpload">
-                <div>
-                    <plugin-item-card :item="uploadedPlugin"></plugin-item-card>
-                </div>
-                <div class="alert">
-                    <template v-if="uploadedPlugin.success.length">
-                        <el-alert v-for="(item, index) in uploadedPlugin.success" :key="index" :title="item"
-                                  show-icon type="success" effect="dark" :closable="false"/>
-                    </template>
-                    <template v-if="uploadedPlugin.error.length">
-                        <el-alert v-for="(item, index) in uploadedPlugin.error" :key="index" :title="item"
-                                  show-icon type="error" effect="dark" :closable="false"/>
-                    </template>
-                    <el-alert v-else title="通过校验，允许上传" show-icon type="success" effect="dark"
-                              :closable="false"/>
-                    <template v-if="uploadedPlugin.warning.length">
-                        <el-alert v-for="(item, index) in uploadedPlugin.warning" :key="index" :title="item"
-                                  show-icon type="warning" effect="dark" :closable="false"/>
-                    </template>
-                </div>
+                <template v-if="uploadedPlugin.success.length">
+                    <el-alert v-for="(item, index) in uploadedPlugin.success" :key="index" :title="item"
+                              show-icon type="success" effect="dark" :closable="false"/>
+                </template>
+                <template v-if="uploadedPlugin.error.length">
+                    <el-alert v-for="(item, index) in uploadedPlugin.error" :key="index" :title="item"
+                              show-icon type="error" effect="dark" :closable="false"/>
+                </template>
+                <el-alert v-else title="通过校验，允许上传" show-icon type="success" effect="dark"
+                          :closable="false"/>
+                <template v-if="uploadedPlugin.warning.length">
+                    <el-alert v-for="(item, index) in uploadedPlugin.warning" :key="index" :title="item"
+                              show-icon type="warning" effect="dark" :closable="false"/>
+                </template>
             </template>
         </div>
         <el-form-item label="作者名称">
@@ -138,16 +146,17 @@ import {
     getHistoryVersion,
     uploadPluginUrl
 } from '@/request/remote/amiyabotServer'
-import { CaretTop, CaretBottom, UploadFilled } from '@element-plus/icons-vue'
+import { CaretTop, CaretBottom, UploadFilled, Search } from '@element-plus/icons-vue'
 
 import Notice from '@/lib/message'
 import VDialog from '@/components/v-dialog.vue'
 import VFormDialog from '@/components/v-form-dialog.vue'
 import PluginItemCard, { PluginItem } from '@/views/app/pluginElem/pluginItemCard.vue'
-import { DictArray, StringDict } from '@/lib/common'
+import Common, { DictArray, StringDict } from '@/lib/common'
+import { shallowRef } from 'vue'
 
 interface Authors {
-    [key: string]: DictArray
+    [key: string]: Array<PluginItem>
 }
 
 @Options({
@@ -189,10 +198,40 @@ export default class ShopCustom extends Vue {
         remark: ''
     }
 
+    private searchIcon = shallowRef(Search)
+    private searchInput = ''
+
     private pluginAuthors: Authors = {}
+    private pluginShowList: Authors = {}
     private pluginsHistory: DictArray = []
     private currPlugin: StringDict = {}
     private uploadedPlugin: StringDict = {}
+
+    public searchPlugins () {
+        const authors: Authors = {}
+        const value = this.searchInput.toLowerCase()
+
+        if (value === '') {
+            this.pluginShowList = this.pluginAuthors
+        }
+
+        for (const name in this.pluginAuthors) {
+            if (name.toLowerCase().indexOf(value) >= 0) {
+                authors[name] = this.pluginAuthors[name]
+            } else {
+                for (const item of this.pluginAuthors[name]) {
+                    if (item.name.toLowerCase().indexOf(value) >= 0) {
+                        if (!authors[name]) {
+                            authors[name] = []
+                        }
+                        authors[name].push(item)
+                    }
+                }
+            }
+        }
+
+        this.pluginShowList = authors
+    }
 
     public async getPlugins () {
         const shop = await getCustomPluginShop()
@@ -206,7 +245,7 @@ export default class ShopCustom extends Vue {
                 }
             }
             const authors: Authors = {}
-            const pluginsList: DictArray = shop.data.filter((item: PluginItem) => {
+            const pluginsList: Array<PluginItem> = shop.data.filter((item: PluginItem) => {
                 item.installed = item.plugin_id in installedPlugin
                 item.upgrade = installedPlugin[item.plugin_id] ? item.version > installedPlugin[item.plugin_id] : false
                 item.higher = installedPlugin[item.plugin_id] ? item.version < installedPlugin[item.plugin_id] : false
@@ -228,6 +267,7 @@ export default class ShopCustom extends Vue {
             }
 
             this.pluginAuthors = authors
+            this.pluginShowList = Common.deepCopy(authors)
         }
     }
 
@@ -324,28 +364,54 @@ export default class ShopCustom extends Vue {
 </script>
 
 <style scoped lang="scss">
-.plugin-author {
-    font-size: 16px;
-    border-left: 3px solid var(--el-color-danger);
-    padding-left: 10px;
-    margin-top: 20px;
-}
-
-.plugin-list {
-    padding: 10px;
+.header-panel {
+    margin-bottom: 10px;
     display: flex;
-    flex-wrap: wrap;
+    justify-content: space-between;
 }
 
-.upload-status {
-    margin: 20px 0 10px 0;
+.shop-panel {
+    height: calc(100% - 42px);
+    overflow: auto;
+
+    .plugin-author {
+        font-size: 16px;
+        border-left: 3px solid var(--el-color-danger);
+        padding-left: 10px;
+        margin-top: 20px;
+    }
+
+    .plugin-list {
+        padding: 10px;
+        display: flex;
+        flex-wrap: wrap;
+    }
 }
 
-.uploaded-plugin {
+.upload-panel {
+    display: flex;
+
+    & > div {
+        width: 50%;
+    }
+
+    .uploaded-plugin {
+        padding: 0 20px;
+
+        & > div {
+            margin-bottom: 10px;
+        }
+
+        .upload-status {
+            width: 100%;
+        }
+    }
+}
+
+.upload-result {
     margin: 10px 0 20px 0;
-    display: flex;
 
-    .alert > div {
+    & > div {
         margin-bottom: 5px;
     }
 }
