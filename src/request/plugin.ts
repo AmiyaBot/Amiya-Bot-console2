@@ -31,6 +31,27 @@ export async function getInstalledPlugin () {
     })
 }
 
+export async function getPluginConfig (data: StringDict) {
+    return await request.post({
+        url: '/plugin/getPluginConfig',
+        data: data
+    })
+}
+
+export async function getPluginDefaultConfig (data: StringDict) {
+    return await request.post({
+        url: '/plugin/getPluginDefaultConfig',
+        data: data
+    })
+}
+
+export async function setPluginConfig (data: StringDict) {
+    return await request.post({
+        url: '/plugin/setPluginConfig',
+        data: data
+    })
+}
+
 export async function getPluginShop () {
     return await cos.get({
         url: `/${official}/plugins.json`
