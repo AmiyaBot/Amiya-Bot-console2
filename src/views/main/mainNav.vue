@@ -26,6 +26,7 @@ import {
     MessageBox,
     User,
     Key,
+    Setting,
     Goods,
     Link
 } from '@element-plus/icons-vue'
@@ -38,6 +39,7 @@ const navName = {
     gacha: '卡池管理',
     admin: '管理员管理',
     user: '用户管理',
+    config: '配置项管理',
     plugin: '插件管理',
     shop: '插件商店'
 }
@@ -50,6 +52,7 @@ const navIcon = {
     gacha: shallowRef(MessageBox),
     admin: shallowRef(Key),
     user: shallowRef(User),
+    config: shallowRef(Setting),
     plugin: shallowRef(Link),
     shop: shallowRef(Goods)
 }
