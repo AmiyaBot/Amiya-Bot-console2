@@ -82,6 +82,11 @@ html, body {
     text-align: inherit;
 }
 
+.el-tabs__content,
+.el-tabs__content > .el-tab-pane {
+    height: 100%;
+}
+
 .v-loading {
     background-color: transparent !important;
     backdrop-filter: blur(10px);
