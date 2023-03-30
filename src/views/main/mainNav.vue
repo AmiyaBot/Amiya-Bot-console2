@@ -2,8 +2,8 @@
     <div class="main-nav">
         <div class="menu">
             <div v-for="(item, index) in indexChildren" :key="index"
-                 :class="{ selected: isSelected(index) }"
-                 @click="selectMenu(index)">
+                 :class="{ selected: isSelected(item) }"
+                 @click="selectMenu(item)">
                 <el-icon class="icon">
                     <component :is="navIcon[item.name]"></component>
                 </el-icon>
@@ -15,8 +15,9 @@
 
 <script lang="ts">
 import { shallowRef } from 'vue'
+import { onBeforeRouteUpdate, RouteRecordRaw } from 'vue-router'
 import { Options, Vue } from 'vue-class-component'
-import { RouteRecordRaw } from 'vue-router'
+import { StringDict } from '@/lib/common'
 import { indexChildren } from '@/router'
 import {
     Monitor,
@@ -60,41 +61,37 @@ export {
 }
 
 @Options({
-    watch: {
-        selected (index) {
-            const item = this.indexChildren[index]
-
-            this.$emit('onSelected', item.name)
-            this.$router.push(item.path)
-        }
-    },
     mounted () {
         if (this.$route.name) {
             for (const index in this.indexChildren) {
                 const item = this.indexChildren[index]
 
                 if (this.$route.name === item.name) {
-                    this.selected = parseInt(index)
+                    this.$emit('onSelected', item.name)
+                    this.selectMenu(item)
                     break
                 }
             }
         }
+
+        onBeforeRouteUpdate((to, from, next) => {
+            this.$emit('onSelected', to.name)
+            next()
+        })
     }
 })
 export default class MainNav extends Vue {
-    public selected: null | number = null
-
     public indexChildren: Array<RouteRecordRaw> = indexChildren
 
     public navName = navName
     public navIcon = navIcon
 
-    public selectMenu (index: number): void {
-        this.selected = index
+    public selectMenu (item: StringDict): void {
+        this.$router.push(item.path)
     }
 
-    public isSelected (index: number): boolean {
-        return index === this.selected
+    public isSelected (item: StringDict): boolean {
+        return item.name === this.$route.name
     }
 }
 </script>

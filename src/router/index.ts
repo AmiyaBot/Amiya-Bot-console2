@@ -39,12 +39,12 @@ const indexChildren: Array<RouteRecordRaw> = [
     {
         path: '/plugin',
         name: 'plugin',
-        component: () => import('../views/app/plugin.vue')
+        component: () => import('../views/app/plugin/plugin.vue')
     },
     {
         path: '/shop',
         name: 'shop',
-        component: () => import('../views/app/shop.vue')
+        component: () => import('../views/app/shop/shop.vue')
     }
 ]
 

@@ -1,6 +1,6 @@
 <template>
     <div class="header-panel">
-        <el-button type="danger" @click="$refs.dialog.show()">上传创意插件</el-button>
+        <el-button type="primary" @click="$refs.dialog.show()">上传创意插件</el-button>
         <el-input style="width: 520px" v-model="searchInput" placeholder="输入任意值搜索创意插件..."
                   @change="searchPlugins()">
             <template #append>
@@ -35,8 +35,11 @@
                         <el-button round type="success" @click="upgrade(item)" v-if="item.upgrade">更新</el-button>
                         <el-button round type="primary" @click="install(item)" v-if="!item.installed">安装</el-button>
                         <el-button round type="danger" @click="uninstall(item)" v-else>卸载</el-button>
-                        <el-button round plain type="warning" @click="getHistory(item)">历史版本</el-button>
-                        <el-button round plain type="danger" @click="deletePlugin(item)">下架插件</el-button>
+                        <div class="more-options">
+                            <el-link type="primary" @click="downloadPlugin(item)">下载插件</el-link>
+                            <el-link type="warning" @click="getHistory(item)">历史版本</el-link>
+                            <el-link type="danger" @click="deletePlugin(item)">下架插件</el-link>
+                        </div>
                     </template>
                 </plugin-item-card>
             </div>
@@ -132,12 +135,14 @@
 </template>
 
 <script lang="ts">
+import { shallowRef } from 'vue'
 import { Options, Vue } from 'vue-class-component'
 import {
     getInstalledPlugin,
     installPlugin,
     upgradePlugin,
-    uninstallPlugin
+    uninstallPlugin,
+    getPluginPostData
 } from '@/request/plugin'
 import {
     getCustomPluginShop,
@@ -151,12 +156,16 @@ import { CaretTop, CaretBottom, UploadFilled, Search } from '@element-plus/icons
 import Notice from '@/lib/message'
 import VDialog from '@/components/v-dialog.vue'
 import VFormDialog from '@/components/v-form-dialog.vue'
-import PluginItemCard, { PluginItem } from '@/views/app/pluginElem/pluginItemCard.vue'
+import { PluginItem } from '@/views/app/plugin/pluginDetail.vue'
+import PluginItemCard from '@/views/app/plugin/pluginItemCard.vue'
 import Common, { DictArray, StringDict } from '@/lib/common'
-import { shallowRef } from 'vue'
 
 interface Authors {
     [key: string]: Array<PluginItem>
+}
+
+interface AuthorsSort {
+    [key: string]: number
 }
 
 @Options({
@@ -244,7 +253,7 @@ export default class ShopCustom extends Vue {
                     installedPlugin[item.plugin_id] = item.version
                 }
             }
-            const authors: Authors = {}
+            const authorsSort: AuthorsSort = {}
             const pluginsList: Array<PluginItem> = shop.data.filter((item: PluginItem) => {
                 item.installed = item.plugin_id in installedPlugin
                 item.upgrade = installedPlugin[item.plugin_id] ? item.version > installedPlugin[item.plugin_id] : false
@@ -256,13 +265,30 @@ export default class ShopCustom extends Vue {
                 if (item.higher) {
                     item.curr_version = installedPlugin[item.plugin_id] + ' << '
                 }
+
+                const author = item.plugin_info.author
+                const lastUpdate = new Date(item.upload_time).getTime()
+
+                if (author in authorsSort) {
+                    if (lastUpdate > authorsSort[author]) {
+                        authorsSort[author] = lastUpdate
+                    }
+                } else {
+                    authorsSort[author] = lastUpdate
+                }
+
                 return true
             })
 
+            const authors: Authors = {}
+            const sorted = Object.keys(authorsSort).sort((a, b) => {
+                return authorsSort[b] - authorsSort[a]
+            })
+
+            for (const name of sorted) {
+                authors[name] = []
+            }
             for (const item of pluginsList) {
-                if (!authors[item.plugin_info.author]) {
-                    authors[item.plugin_info.author] = []
-                }
                 authors[item.plugin_info.author].push(item)
             }
 
@@ -311,12 +337,17 @@ export default class ShopCustom extends Vue {
         }
     }
 
+    public async downloadPlugin (item: StringDict) {
+        const data = getPluginPostData(item)
+        location.href = data.url
+    }
+
     public async deletePlugin (item: StringDict) {
         const key = await Notice.prompt('输入插件密钥')
         if (key) {
             const res = await delCustomPlugin({
                 ...item,
-                force_delete: await Notice.confirm('是否永久下架该插件？永久下架将会删除该插件ID，并删除历史版本。', '请注意', 'warning', ['是', '否']),
+                force_delete: await Notice.confirm('是否永久下架该插件？永久下架将会释放该插件ID，并删除历史版本。', '请注意', 'warning', ['是', '否']),
                 secret_key: key
             })
             if (res) {
@@ -413,6 +444,17 @@ export default class ShopCustom extends Vue {
 
     & > div {
         margin-bottom: 5px;
+    }
+}
+
+.more-options {
+    padding-left: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    & > a:not(:last-child) {
+        margin-bottom: 2px;
     }
 }
 </style>

@@ -8,7 +8,7 @@ const request = new HttpRequest()
 const official = 'plugins/official'
 const custom = 'plugins/custom'
 
-function getPluginPostData (data: StringDict) {
+export function getPluginPostData (data: StringDict) {
     const post = {
         url: data.url,
         packageName: '',
@@ -28,6 +28,34 @@ function getPluginPostData (data: StringDict) {
 export async function getInstalledPlugin () {
     return await request.get({
         url: '/plugin/getInstalledPlugin'
+    })
+}
+
+export async function getPluginConfig (data: StringDict) {
+    return await request.post({
+        url: '/plugin/getPluginConfig',
+        data: data
+    })
+}
+
+export async function delPluginConfig (data: StringDict) {
+    return await request.post({
+        url: '/plugin/delPluginConfig',
+        data: data
+    })
+}
+
+export async function getPluginDefaultConfig (data: StringDict) {
+    return await request.post({
+        url: '/plugin/getPluginDefaultConfig',
+        data: data
+    })
+}
+
+export async function setPluginConfig (data: StringDict) {
+    return await request.post({
+        url: '/plugin/setPluginConfig',
+        data: data
     })
 }
 

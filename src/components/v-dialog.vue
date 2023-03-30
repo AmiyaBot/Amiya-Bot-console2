@@ -1,5 +1,5 @@
 <template>
-    <el-dialog v-model="dialogVisible" :title="title" :append-to-body="appendToBody" :width="width">
+    <el-dialog v-model="dialogVisible" :title="title" :append-to-body="appendToBody" :width="width" destroy-on-close>
         <template #default>
             <slot></slot>
         </template>
