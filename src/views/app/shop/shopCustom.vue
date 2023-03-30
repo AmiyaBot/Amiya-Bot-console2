@@ -132,6 +132,7 @@
 </template>
 
 <script lang="ts">
+import { shallowRef } from 'vue'
 import { Options, Vue } from 'vue-class-component'
 import {
     getInstalledPlugin,
@@ -151,12 +152,16 @@ import { CaretTop, CaretBottom, UploadFilled, Search } from '@element-plus/icons
 import Notice from '@/lib/message'
 import VDialog from '@/components/v-dialog.vue'
 import VFormDialog from '@/components/v-form-dialog.vue'
-import PluginItemCard, { PluginItem } from '@/views/app/pluginElem/pluginItemCard.vue'
+import { PluginItem } from '@/views/app/plugin/pluginDetail.vue'
+import PluginItemCard from '@/views/app/plugin/pluginItemCard.vue'
 import Common, { DictArray, StringDict } from '@/lib/common'
-import { shallowRef } from 'vue'
 
 interface Authors {
     [key: string]: Array<PluginItem>
+}
+
+interface AuthorsSort {
+    [key: string]: number
 }
 
 @Options({
@@ -244,7 +249,7 @@ export default class ShopCustom extends Vue {
                     installedPlugin[item.plugin_id] = item.version
                 }
             }
-            const authors: Authors = {}
+            const authorsSort: AuthorsSort = {}
             const pluginsList: Array<PluginItem> = shop.data.filter((item: PluginItem) => {
                 item.installed = item.plugin_id in installedPlugin
                 item.upgrade = installedPlugin[item.plugin_id] ? item.version > installedPlugin[item.plugin_id] : false
@@ -256,13 +261,30 @@ export default class ShopCustom extends Vue {
                 if (item.higher) {
                     item.curr_version = installedPlugin[item.plugin_id] + ' << '
                 }
+
+                const author = item.plugin_info.author
+                const lastUpdate = new Date(item.upload_time).getTime()
+
+                if (author in authorsSort) {
+                    if (lastUpdate > authorsSort[author]) {
+                        authorsSort[author] = lastUpdate
+                    }
+                } else {
+                    authorsSort[author] = lastUpdate
+                }
+
                 return true
             })
 
+            const authors: Authors = {}
+            const sorted = Object.keys(authorsSort).sort((a, b) => {
+                return authorsSort[b] - authorsSort[a]
+            })
+
+            for (const name of sorted) {
+                authors[name] = []
+            }
             for (const item of pluginsList) {
-                if (!authors[item.plugin_info.author]) {
-                    authors[item.plugin_info.author] = []
-                }
                 authors[item.plugin_info.author].push(item)
             }
 

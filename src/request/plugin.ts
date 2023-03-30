@@ -38,6 +38,13 @@ export async function getPluginConfig (data: StringDict) {
     })
 }
 
+export async function delPluginConfig (data: StringDict) {
+    return await request.post({
+        url: '/plugin/delPluginConfig',
+        data: data
+    })
+}
+
 export async function getPluginDefaultConfig (data: StringDict) {
     return await request.post({
         url: '/plugin/getPluginDefaultConfig',

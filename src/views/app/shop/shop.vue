@@ -34,8 +34,9 @@ import { getPluginShop, getInstalledPlugin, installPlugin, upgradePlugin, uninst
 import { StringDict } from '@/lib/common'
 import { CaretTop, CaretBottom } from '@element-plus/icons-vue'
 
-import PluginItemCard, { PluginItem } from '@/views/app/pluginElem/pluginItemCard.vue'
-import ShopCustom from '@/views/app/shopCustom.vue'
+import { PluginItem } from '@/views/app/plugin/pluginDetail.vue'
+import PluginItemCard from '@/views/app/plugin/pluginItemCard.vue'
+import ShopCustom from '@/views/app/shop/shopCustom.vue'
 
 @Options({
     components: {
