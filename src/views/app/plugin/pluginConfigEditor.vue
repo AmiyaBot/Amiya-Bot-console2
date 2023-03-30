@@ -1,6 +1,6 @@
 <template>
     <div v-if="channelGenerator || globalGenerator">
-        <el-form label-width="120px">
+        <el-form label-width="auto">
             <el-form-item label="选择配置">
                 <el-select v-model="selectedSource" @change="getSourceConfig">
                     <template #prefix>

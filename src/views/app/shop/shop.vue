@@ -21,6 +21,9 @@
                         <el-button round type="danger" @click="uninstall(item)" style="margin-left: 10px" v-else>
                             卸载
                         </el-button>
+                        <div class="more-options">
+                            <el-link type="primary" @click="downloadPlugin(item)">下载插件</el-link>
+                        </div>
                     </template>
                 </plugin-item-card>
             </div>
@@ -30,7 +33,14 @@
 
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component'
-import { getPluginShop, getInstalledPlugin, installPlugin, upgradePlugin, uninstallPlugin } from '@/request/plugin'
+import {
+    getPluginShop,
+    getInstalledPlugin,
+    installPlugin,
+    upgradePlugin,
+    uninstallPlugin,
+    getPluginPostData
+} from '@/request/plugin'
 import { StringDict } from '@/lib/common'
 import { CaretTop, CaretBottom } from '@element-plus/icons-vue'
 
@@ -98,6 +108,11 @@ export default class Shop extends Vue {
             await this.getShopList()
         }
     }
+
+    public async downloadPlugin (item: StringDict) {
+        const data = getPluginPostData(item)
+        location.href = data.url
+    }
 }
 </script>
 
@@ -113,5 +128,16 @@ export default class Shop extends Vue {
     padding: 10px;
     display: flex;
     flex-wrap: wrap;
+}
+
+.more-options {
+    padding-left: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    & > a:not(:last-child) {
+        margin-bottom: 2px;
+    }
 }
 </style>

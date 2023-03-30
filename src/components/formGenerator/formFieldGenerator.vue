@@ -1,6 +1,19 @@
 <template>
     <template v-for="(item, key) in items" :key="key">
-        <el-form-item :label="itemLabel(item)" :style="itemStyle(item)" class="v-table">
+        <el-form-item :style="itemStyle(item)" class="v-table">
+            <template #label>
+                <div class="item-label">
+                    <span style="padding-right: 5px">{{ itemLabel(item) }}</span>
+                    <el-tooltip placement="top" v-if="item.description">
+                        <template #content>
+                            {{ item.description }}
+                        </template>
+                        <el-icon style="cursor: help">
+                            <QuestionFilled/>
+                        </el-icon>
+                    </el-tooltip>
+                </div>
+            </template>
 
             <!-- 输入框 -->
             <template v-if="item.type === 'input' || item.type === 'number'">
@@ -84,11 +97,12 @@
 import { shallowRef } from 'vue'
 import { Options, Vue } from 'vue-class-component'
 import { FormGroup, FormItem } from '@/components/formGenerator/formGenerator'
-import { Plus, Minus } from '@element-plus/icons-vue'
+import { Plus, Minus, QuestionFilled } from '@element-plus/icons-vue'
 import { StringDict } from '@/lib/common'
 
 @Options({
     name: 'formFieldGenerator',
+    components: { QuestionFilled },
     props: {
         form: Object,
         items: Array
@@ -146,5 +160,8 @@ export default class FormFieldGenerator extends Vue {
 </script>
 
 <style scoped lang="scss">
-
+.item-label {
+    display: flex;
+    align-items: center;
+}
 </style>

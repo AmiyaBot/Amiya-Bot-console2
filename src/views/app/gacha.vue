@@ -32,9 +32,9 @@
             </el-form-item>
             <el-form-item label="卡池属性">
                 <el-select style="width: 100%" v-model="form.limit_pool" placeholder="请选择卡池属性">
-                    <el-option label="普通卡池" value="0"/>
-                    <el-option label="限定卡池" value="1"/>
-                    <el-option label="联合寻访" value="2"/>
+                    <el-option label="普通卡池" :value="0"/>
+                    <el-option label="限定卡池" :value="1"/>
+                    <el-option label="联合寻访" :value="2"/>
                 </el-select>
             </el-form-item>
             <template v-for="(field, r) in {'r6': 'pickup_6', 'r5': 'pickup_5', 'r4': 'pickup_4'}" :key="field">

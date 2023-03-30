@@ -5,9 +5,6 @@
                 <el-link :underline="false" type="primary" @click="editUser(row)">编辑</el-link>
             </template>
             <template #cell="{ value, field }">
-                <el-tag v-if="field === 'sign_in'" :type="value ? 'success' : 'info'">
-                    {{ value ? '已签到' : '未签到' }}
-                </el-tag>
                 <el-tag v-if="field === 'black'" :type="value ? 'danger' : 'info'">{{ value ? '是' : '否' }}</el-tag>
             </template>
         </v-table>
@@ -65,7 +62,7 @@ import VFormDialog from '@/components/v-form-dialog.vue'
             jade_point: '合成玉数量',
             message_num: '累计互动数',
             sign_times: '累计签到次数',
-            sign_in: '今日签到',
+            sign_date: '最近签到日',
             black: '黑名单用户'
         })
     }

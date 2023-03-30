@@ -1,6 +1,6 @@
 <template>
     <div class="header-panel">
-        <el-button type="danger" @click="$refs.dialog.show()">上传创意插件</el-button>
+        <el-button type="primary" @click="$refs.dialog.show()">上传创意插件</el-button>
         <el-input style="width: 520px" v-model="searchInput" placeholder="输入任意值搜索创意插件..."
                   @change="searchPlugins()">
             <template #append>
@@ -35,8 +35,11 @@
                         <el-button round type="success" @click="upgrade(item)" v-if="item.upgrade">更新</el-button>
                         <el-button round type="primary" @click="install(item)" v-if="!item.installed">安装</el-button>
                         <el-button round type="danger" @click="uninstall(item)" v-else>卸载</el-button>
-                        <el-button round plain type="warning" @click="getHistory(item)">历史版本</el-button>
-                        <el-button round plain type="danger" @click="deletePlugin(item)">下架插件</el-button>
+                        <div class="more-options">
+                            <el-link type="primary" @click="downloadPlugin(item)">下载插件</el-link>
+                            <el-link type="warning" @click="getHistory(item)">历史版本</el-link>
+                            <el-link type="danger" @click="deletePlugin(item)">下架插件</el-link>
+                        </div>
                     </template>
                 </plugin-item-card>
             </div>
@@ -138,7 +141,8 @@ import {
     getInstalledPlugin,
     installPlugin,
     upgradePlugin,
-    uninstallPlugin
+    uninstallPlugin,
+    getPluginPostData
 } from '@/request/plugin'
 import {
     getCustomPluginShop,
@@ -333,12 +337,17 @@ export default class ShopCustom extends Vue {
         }
     }
 
+    public async downloadPlugin (item: StringDict) {
+        const data = getPluginPostData(item)
+        location.href = data.url
+    }
+
     public async deletePlugin (item: StringDict) {
         const key = await Notice.prompt('输入插件密钥')
         if (key) {
             const res = await delCustomPlugin({
                 ...item,
-                force_delete: await Notice.confirm('是否永久下架该插件？永久下架将会删除该插件ID，并删除历史版本。', '请注意', 'warning', ['是', '否']),
+                force_delete: await Notice.confirm('是否永久下架该插件？永久下架将会释放该插件ID，并删除历史版本。', '请注意', 'warning', ['是', '否']),
                 secret_key: key
             })
             if (res) {
@@ -435,6 +444,17 @@ export default class ShopCustom extends Vue {
 
     & > div {
         margin-bottom: 5px;
+    }
+}
+
+.more-options {
+    padding-left: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    & > a:not(:last-child) {
+        margin-bottom: 2px;
     }
 }
 </style>

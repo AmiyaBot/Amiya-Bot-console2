@@ -8,7 +8,7 @@ const request = new HttpRequest()
 const official = 'plugins/official'
 const custom = 'plugins/custom'
 
-function getPluginPostData (data: StringDict) {
+export function getPluginPostData (data: StringDict) {
     const post = {
         url: data.url,
         packageName: '',
