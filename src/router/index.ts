@@ -4,7 +4,7 @@ const indexChildren: Array<RouteRecordRaw> = [
     {
         path: '/',
         name: 'index',
-        component: () => import('../views/app/dashboard.vue')
+        component: () => import('../views/app/dashboard/dashboard.vue')
     },
     {
         path: '/instance',

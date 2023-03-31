@@ -1,6 +1,10 @@
 <template>
     <template v-for="(item, key) in items" :key="key">
-        <el-form-item :style="itemStyle(item)" class="v-table">
+        <!--
+        <el-form-item :style="itemStyle(item)" class="v-table"
+                      :rules="{ required: item.required, message: itemLabel(item) + '为必填项' }">
+                      -->
+        <el-form-item :style="itemStyle(item)" class="v-table" :class="{ 'is-required': item.required }">
             <template #label>
                 <div class="item-label">
                     <span style="padding-right: 5px">{{ itemLabel(item) }}</span>
@@ -19,6 +23,13 @@
             <template v-if="item.type === 'input' || item.type === 'number'">
                 <el-input v-model="form[item.field]"
                           :placeholder="(item.value || `请输入${itemLabel(item)}`).toString()"/>
+            </template>
+
+            <!-- 选择框 -->
+            <template v-if="item.type === 'select'">
+                <el-select v-model="form[item.field]" :placeholder="`请选择${itemLabel(item)}`">
+                    <el-option v-for="(n, i) in item.options" :key="i" :value="item.factory(n)">{{ n }}</el-option>
+                </el-select>
             </template>
 
             <!-- 切换按钮 -->
@@ -124,7 +135,7 @@ export default class FormFieldGenerator extends Vue {
     public itemStyle (item: FormItem | FormGroup) {
         return {
             width: item.type === 'form' || item.type === 'table' ? '100%' : '60%',
-            marginBottom: '10px'
+            marginBottom: '18px'
         }
     }
 
