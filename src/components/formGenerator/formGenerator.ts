@@ -92,36 +92,47 @@ class BuildFromSchema {
             item.title = schemaItem.title
             item.value = schemaItem.default
             item.description = schemaItem.description
-            item.required = !!(schema.required && schema.required.indexOf(field))
+            item.required = !!(schema.required && schema.required.indexOf(field) >= 0)
 
-            switch (schemaItem.type) {
-                case 'array':
-                    // todo 不能确定数组内容的类型
-                    item.type = 'values'
-                    if (!item.value) {
-                        item.value = []
-                    }
-                    break
-                case 'boolean':
-                    item.type = 'boolean'
-                    item.factory = Boolean
-                    if (!item.value) {
-                        item.value = false
-                    }
-                    break
-                case 'number':
-                case 'integer':
-                    item.type = 'number'
-                    item.factory = Number
-                    if (!item.value) {
-                        item.value = 0
-                    }
-                    break
-                case 'object':
-                    group.append(this.build(schemaItem, schemaItem.title, field))
-                    continue
-                case 'null':
-                    continue
+            if (schemaItem.enum && schemaItem.enum.length) {
+                item.type = 'select'
+                item.factory = schemaItem.enum[0].constructor
+
+                for (const option of schemaItem.enum) {
+                    item.options[option] = option
+                }
+            } else {
+                switch (schemaItem.type) {
+                    case 'array':
+                        item.type = 'values'
+                        if (!item.value) {
+                            item.value = []
+                        }
+                        if (item.value.length) {
+                            item.factory = item.value[0].constructor
+                        }
+                        break
+                    case 'boolean':
+                        item.type = 'boolean'
+                        item.factory = Boolean
+                        if (!item.value) {
+                            item.value = false
+                        }
+                        break
+                    case 'number':
+                    case 'integer':
+                        item.type = 'number'
+                        item.factory = Number
+                        if (!item.value) {
+                            item.value = 0
+                        }
+                        break
+                    case 'object':
+                        group.append(this.build(schemaItem, schemaItem.title, field))
+                        continue
+                    case 'null':
+                        continue
+                }
             }
 
             group.append(item)
@@ -140,5 +151,7 @@ export default class FormGenerator {
         } else {
             this.form = BuildFromJson.build(Common.deepCopy(dict), new FormGroup(''))
         }
+
+        console.log(this.form)
     }
 }
