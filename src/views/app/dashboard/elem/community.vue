@@ -30,7 +30,7 @@ import { Options, Vue } from 'vue-class-component'
 import { getBotCommunity } from '@/request/remote/amiyabotServer'
 import { StringDict } from '@/lib/common'
 
-import NumberCard from '@/views/app/dashboardElem/numberCard.vue'
+import NumberCard from '@/views/app/dashboard/elem/numberCard.vue'
 
 @Options({
     components: {
@@ -54,6 +54,6 @@ export default class Community extends Vue {
 
 <style scoped lang="scss">
 .community {
-
+    padding-bottom: 15px;
 }
 </style>

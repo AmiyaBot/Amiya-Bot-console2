@@ -10,13 +10,9 @@ interface Schema {
     description: string
 }
 
-interface SchemaProperties {
-    [field: string]: Schema
-}
-
 export interface JsonSchema extends StringDict {
     $schema?: string
     type?: string
     required?: Array<string>
-    properties?: SchemaProperties
+    properties?: { [field: string]: Schema }
 }

@@ -16,3 +16,9 @@ export async function getMessageRecord (appid: string) {
         }
     })
 }
+
+export async function getFunctionsUsed () {
+    return await request.get({
+        url: '/dashboard/getFunctionsUsed'
+    })
+}
