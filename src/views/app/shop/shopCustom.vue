@@ -59,8 +59,10 @@
                     拖动插件到此处或<em>点击上传</em>解析插件信息
                 </div>
                 <template #tip>
-                    <div class="el-upload__tip">
-                        仅支持通过 zip 打包的插件，大小不超过50MB。上传超大插件请联系开发者获得帮助。
+                    <div class="el-upload__tip" style="font-size: 14px; display: flex">
+                        仅支持通过 zip 打包的插件，大小不超过50MB。上传超大插件请
+                        <el-link class="link" type="primary" @click="callAdmin">联系管理员</el-link>
+                        获得帮助。
                     </div>
                 </template>
             </el-upload>
@@ -104,6 +106,9 @@
         <template #footer>
                 <span style="margin-right: 10px;font-size: 12px;color: var(--el-color-danger)"
                       v-if="isUpload && !uploadedPlugin.ready">请解决所有问题后提交</span>
+            <el-button @click="forgotKey">
+                忘记密钥
+            </el-button>
             <el-button type="primary" :disabled="!isUpload || !uploadedPlugin.ready" @click="commit">
                 确认提交
             </el-button>
@@ -307,12 +312,15 @@ export default class ShopCustom extends Vue {
     }
 
     public uploaded (response: any) {
+        this.form.author = response.author || ''
         this.uploadedPlugin = response
     }
 
-    public beforeUpload (file: any) {
+    public async beforeUpload (file: any) {
         if (file.size >= 50 * 1024 * 1024) {
-            Notice.alert('插件大小不能超过50MB。上传超大插件请联系开发者获得帮助。')
+            if (await Notice.confirm('插件大小不能超过50MB。上传超大插件请联系管理员获得帮助。', '文件体积过大', 'error', ['联系管理员', '不了'])) {
+                await this.callAdmin()
+            }
             return false
         }
     }
@@ -320,6 +328,16 @@ export default class ShopCustom extends Vue {
     public async uploadFail () {
         this.uploadedPlugin = {}
         await Notice.alert('请通过官方项目测试你的插件是否能正常加载，或打包的时候是否缺少相关第三方依赖。', '插件解析失败', () => null, 'error')
+    }
+
+    public async forgotKey () {
+        if (await Notice.confirm('忘记密钥请联系管理员获得帮助。', '忘记密钥', 'info', ['联系管理员', '再想一想'])) {
+            await this.callAdmin()
+        }
+    }
+
+    public async callAdmin () {
+        window.open('https://qun.qq.com/qqweb/qunpro/share?_wv=3&_wwv=128&appChannel=share&inviteCode=1W4sJux&appChannel=share&businessType=9&from=181074&biz=ka&shareSource=5')
     }
 
     public async commit () {
@@ -345,13 +363,15 @@ export default class ShopCustom extends Vue {
     public async deletePlugin (item: StringDict) {
         const key = await Notice.prompt('输入插件密钥')
         if (key) {
-            const res = await delCustomPlugin({
-                ...item,
-                force_delete: await Notice.confirm('是否永久下架该插件？永久下架将会释放该插件ID，并删除历史版本。', '请注意', 'warning', ['是', '否']),
-                secret_key: key
-            })
-            if (res) {
-                await this.getPlugins()
+            if (await Notice.confirm(`确认下架插件【${item.name} v${item.version}】？`)) {
+                const res = await delCustomPlugin({
+                    ...item,
+                    force_delete: !await Notice.confirm('是否仅下架该版本？否则永久下架将会释放该插件ID，并删除历史版本。', '请注意', 'warning', ['仅下架该版本', '永久下架']),
+                    secret_key: key
+                })
+                if (res) {
+                    await this.getPlugins()
+                }
             }
         }
     }
