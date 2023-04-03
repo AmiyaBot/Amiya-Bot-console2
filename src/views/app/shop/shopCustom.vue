@@ -379,13 +379,16 @@ export default class ShopCustom extends Vue {
     public async deleteHistory (item: StringDict) {
         const key = await Notice.prompt('输入插件密钥')
         if (key) {
-            const res = await delCustomPlugin({
-                ...item,
-                force_delete: false,
-                secret_key: key
-            })
-            if (res) {
-                await this.getHistory(item)
+            if (await Notice.confirm(`确认下架插件【${item.name} v${item.version}】？`)) {
+                const res = await delCustomPlugin({
+                    ...item,
+                    force_delete: false,
+                    secret_key: key
+                })
+                if (res) {
+                    await this.getHistory(item)
+                    await this.getPlugins()
+                }
             }
         }
     }
