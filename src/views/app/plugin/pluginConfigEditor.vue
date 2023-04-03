@@ -1,8 +1,8 @@
 <template>
-    <div v-if="channelGenerator || globalGenerator">
+    <div v-if="(channelGenerator || globalGenerator) && channelList.length">
         <el-form label-width="auto">
             <el-form-item label="选择配置">
-                <el-select v-model="selectedSource" @change="getSourceConfig">
+                <el-select v-model="selectedSource" @change="getSourceConfig" ref="selectSource">
                     <template #prefix>
                         <el-tag v-if="selectedSource" type="success" disable-transitions>群组</el-tag>
                         <el-tag v-else type="danger" disable-transitions>全局</el-tag>
@@ -32,8 +32,22 @@
             </el-form-item>
             <form-field-generator v-if="selectedSource" :form="channelFormData"
                                   :items="channelGenerator.form.formItems"/>
-            <form-field-generator v-else :form="globalFormData"
+            <form-field-generator v-else-if="globalGenerator" :form="globalFormData"
                                   :items="globalGenerator.form.formItems"/>
+            <el-empty v-else>
+                <template #description>
+                    <div style="display: flex">
+                        该插件无全局配置选项，请
+                        <el-link type="primary"
+                                 @click="() => $refs.selectSource.focus()">选择
+                        </el-link>
+                        或
+                        <el-link type="primary"
+                                 @click="newChannel">新建群组配置
+                        </el-link>
+                    </div>
+                </template>
+            </el-empty>
         </el-form>
     </div>
     <el-empty v-else description="无法配置插件"/>
@@ -152,13 +166,12 @@ export default class PluginConfigEditor extends Vue {
             plugin_id: this.item.plugin_id
         })
         if (res) {
-            const channelList = []
+            const channelList = [
+                { label: '全局配置', value: '' }
+            ]
 
             for (const cid in res.data) {
                 if (!cid) {
-                    if (this.globalGenerator) {
-                        channelList.unshift({ label: '全局配置', value: '' })
-                    }
                     continue
                 }
                 channelList.push({ label: cid, value: cid })

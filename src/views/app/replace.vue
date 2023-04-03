@@ -8,7 +8,10 @@
                 <el-button @click="wordSetting(0)">白名单设置</el-button>
             </template>
             <template #cell="{ value, field }">
-                <el-tag v-if="field === 'is_global'" :type="value ? 'success' : 'info'">{{ value ? '是' : '否' }}</el-tag>
+                <el-tag v-if="field === 'is_global'" :type="value ? 'success' : 'info'">{{
+                        value ? '是' : '否'
+                    }}
+                </el-tag>
                 <el-tag v-if="field === 'is_active'" :type="value ? 'success' : 'danger'">
                     {{ value ? '是' : '否' }}
                 </el-tag>
@@ -66,6 +69,7 @@ import Common, { DictArray, StringDict } from '@/lib/common'
 
 import VTable, { QueryData } from '@/components/table/v-table.vue'
 import VFormDialog from '@/components/v-form-dialog.vue'
+import Notice from '@/lib/message'
 
 @Options({
     components: {
@@ -198,9 +202,11 @@ export default class Replace extends Vue {
     }
 
     public async syncReplace () {
-        const res = await syncReplace()
-        if (res) {
-            this.table.executeLoad(true)
+        if (await Notice.confirm('同步词语替换将会强制覆盖本地所有词语替换配置，造成自定义的词语替换丢失，是否开始同步？', '警告')) {
+            const res = await syncReplace()
+            if (res) {
+                this.table.executeLoad(true)
+            }
         }
     }
 

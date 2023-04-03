@@ -82,8 +82,9 @@
 import { Options, Vue } from 'vue-class-component'
 import { getGachaList, submitGacha, delGacha, syncPool } from '@/request/gacha'
 import { getAllOperator } from '@/request/operator'
-import Common, { DictArray, StringDict } from '@/lib/common'
 
+import Notice from '@/lib/message'
+import Common, { DictArray, StringDict } from '@/lib/common'
 import VTable, { QueryData } from '@/components/table/v-table.vue'
 import VFormDialog from '@/components/v-form-dialog.vue'
 
@@ -213,9 +214,11 @@ export default class Gacha extends Vue {
     }
 
     public async syncPool () {
-        const res = await syncPool()
-        if (res) {
-            this.table.executeLoad(true)
+        if (await Notice.confirm('同步卡池将会强制覆盖本地所有卡池配置，造成自定义的卡池丢失，是否开始同步？', '警告')) {
+            const res = await syncPool()
+            if (res) {
+                this.table.executeLoad(true)
+            }
         }
     }
 
