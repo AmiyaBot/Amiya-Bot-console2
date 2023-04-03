@@ -151,7 +151,5 @@ export default class FormGenerator {
         } else {
             this.form = BuildFromJson.build(Common.deepCopy(dict), new FormGroup(''))
         }
-
-        console.log(this.form)
     }
 }
