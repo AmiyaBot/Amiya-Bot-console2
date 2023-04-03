@@ -57,8 +57,10 @@ import { StringDict } from '@/lib/common'
                         value: item.use_num
                     })
                 }
-                option.series.data[0].selected = true
-                option.series.data[0].label = { show: true }
+                if (option.series.data.length) {
+                    option.series.data[0].selected = true
+                    option.series.data[0].label = { show: true }
+                }
 
                 const instance = getInstanceByDom(this.$refs.charts)
                 if (instance) {
