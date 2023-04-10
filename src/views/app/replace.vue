@@ -8,9 +8,8 @@
                 <el-button @click="wordSetting(0)">白名单设置</el-button>
             </template>
             <template #cell="{ value, field }">
-                <el-tag v-if="field === 'is_global'" :type="value ? 'success' : 'info'">{{
-                        value ? '是' : '否'
-                    }}
+                <el-tag v-if="field === 'is_global'" :type="value ? 'success' : 'info'">
+                    {{ value ? '是' : '否' }}
                 </el-tag>
                 <el-tag v-if="field === 'is_active'" :type="value ? 'success' : 'danger'">
                     {{ value ? '是' : '否' }}
