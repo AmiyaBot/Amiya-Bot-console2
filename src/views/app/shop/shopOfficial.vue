@@ -1,7 +1,9 @@
 <template>
     <div class="plugin-author">官方插件</div>
     <div class="plugin-list">
-        <plugin-item-card v-for="(item, index) in officialPlugins" :key="index" :item="item">
+        <plugin-item-card v-for="(item, index) in officialPlugins" :key="index" :item="item" :batch-mode="batchMode"
+                          @selected="() => this.$emit('selected', item)"
+                          @unselected="() => this.$emit('unselected', item)">
             <template #version>
                 <div style="display: flex;align-items: center;">
                     {{ item.curr_version }}{{ item.version }}
@@ -44,13 +46,17 @@ import { PluginItem } from '@/views/app/plugin/pluginDetail.vue'
 import PluginItemCard from '@/views/app/plugin/pluginItemCard.vue'
 
 @Options({
+    emits: [
+        'selected',
+        'unselected'
+    ],
+    props: {
+        batchMode: Boolean
+    },
     components: {
         CaretTop,
         CaretBottom,
         PluginItemCard
-    },
-    mounted () {
-        this.getShopList()
     }
 })
 export default class ShopOfficial extends Vue {

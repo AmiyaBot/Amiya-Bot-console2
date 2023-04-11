@@ -80,4 +80,10 @@ export default class Common {
     static deepCopy (obj: any) {
         return JSON.parse(JSON.stringify(obj))
     }
+
+    static async sleep (sec: number) {
+        return new Promise(resolve => {
+            setTimeout(resolve, sec * 1000)
+        })
+    }
 }

@@ -1,7 +1,14 @@
 <template>
     <div>
         <div class="header-panel">
-            <el-button type="primary" @click="$refs.dialog.show()">上传创意插件</el-button>
+            <div>
+                <el-button type="primary" @click="$refs.dialog.show()">上传创意插件</el-button>
+                <el-button v-if="!batchMode" @click="batchMode = true">批量安装插件</el-button>
+                <el-button v-else type="danger" @click="batchMode = false">取消批量安装</el-button>
+                <el-button v-if="batchMode" type="success" @click="batchInstall">
+                    安装（已选{{ Object.keys(batchList).length }}）
+                </el-button>
+            </div>
             <el-input style="width: 520px" v-model="searchInput" placeholder="输入任意值搜索创意插件..."
                       @change="searchPlugins()">
                 <template #append>
@@ -11,7 +18,9 @@
         </div>
 
         <div class="shop-panel">
-            <shop-official></shop-official>
+            <shop-official :batch-mode="batchMode" ref="officialShop"
+                           @selected="selectPlugin"
+                           @unselected="unselectedPlugin"/>
 
             <template v-for="(list, author) in pluginShowList" :key="author">
                 <div class="plugin-author">{{ author }}</div>
@@ -20,7 +29,10 @@
                                       :key="index"
                                       :item="item"
                                       :author="author"
-                                      :download-count="item.plugin_info.download_num">
+                                      :batch-mode="batchMode"
+                                      :download-count="item.plugin_info.download_num"
+                                      @selected="selectPlugin(item)"
+                                      @unselected="unselectedPlugin(item)">
                         <template #version>
                             <div style="display: flex;align-items: center;">
                                 {{ item.curr_version }}{{ item.version }}
@@ -139,6 +151,30 @@
                 </el-table>
             </div>
         </v-dialog>
+
+        <v-dialog ref="batchInstall" title="批量安装插件" @closed="getPlugins">
+            <div class="batch-install-plugins">
+                <div :class="batchInstallProcess.status[item.plugin_id]" v-for="(item, index) in batchList"
+                     :key="index">
+                    {{ item.name }}
+                </div>
+            </div>
+            <el-progress :text-inside="true"
+                         :stroke-width="16"
+                         :status="batchInstallProcess.percentage >= 100 ? 'success' : ''"
+                         :percentage="batchInstallProcess.percentage"></el-progress>
+            <div style="margin-top: 20px; text-align: center;">
+                总数：{{ Object.keys(batchList).length }}，
+                成功：
+                <span style="color: #4CAF50">
+                    {{ Object.values(batchInstallProcess.status).filter(n => n === 'success').length }}
+                </span>，
+                失败：
+                <span style="color: #F44336">
+                    {{ Object.values(batchInstallProcess.status).filter(n => n !== 'success').length }}
+                </span>
+            </div>
+        </v-dialog>
     </div>
 </template>
 
@@ -168,6 +204,7 @@ import { PluginItem } from '@/views/app/plugin/pluginDetail.vue'
 import PluginItemCard from '@/views/app/plugin/pluginItemCard.vue'
 import ShopOfficial from '@/views/app/shop/shopOfficial.vue'
 import Common, { DictArray, StringDict } from '@/lib/common'
+import { RequestControl } from '@/lib/http'
 
 interface Authors {
     [key: string]: Array<PluginItem>
@@ -175,6 +212,11 @@ interface Authors {
 
 interface AuthorsSort {
     [key: string]: number
+}
+
+interface BatchInstallProcess {
+    percentage: number
+    status: { [key: string]: string }
 }
 
 @Options({
@@ -191,11 +233,22 @@ interface AuthorsSort {
         isUpload () {
             return Object.keys(this.uploadedPlugin).length
         },
+        officialShop () {
+            return this.$refs.officialShop
+        },
         dialog () {
             return this.$refs.dialog
         },
         historyDialog () {
             return this.$refs.history
+        },
+        batchInstallDialog () {
+            return this.$refs.batchInstall
+        }
+    },
+    watch: {
+        batchMode () {
+            this.batchList = {}
         }
     },
     data () {
@@ -210,6 +263,9 @@ interface AuthorsSort {
 export default class ShopCustom extends Vue {
     dialog!: VFormDialog
     historyDialog!: VDialog
+    batchInstallDialog!: VDialog
+
+    officialShop!: ShopOfficial
 
     private form = {
         author: '',
@@ -219,6 +275,13 @@ export default class ShopCustom extends Vue {
 
     private searchIcon = shallowRef(Search)
     private searchInput = ''
+
+    private batchMode = false
+    private batchList: { [key: string]: PluginItem } = {}
+    private batchInstallProcess: BatchInstallProcess = {
+        percentage: 0,
+        status: {}
+    }
 
     private pluginAuthors: Authors = {}
     private pluginShowList: Authors = {}
@@ -253,7 +316,12 @@ export default class ShopCustom extends Vue {
     }
 
     public async getPlugins () {
+        this.batchMode = false
+
+        await this.officialShop.getShopList()
+
         const shop = await getCustomPluginShop()
+
         if (shop) {
             const res = await getInstalledPlugin()
             const installedPlugin: StringDict = {}
@@ -419,6 +487,48 @@ export default class ShopCustom extends Vue {
             await this.getPlugins()
         }
     }
+
+    public async batchInstall () {
+        const list = Object.values(this.batchList)
+
+        if (list.length === 0) {
+            Notice.toast('未选择插件')
+            return
+        }
+
+        if (!await Notice.confirm(`将批量安装已选的 ${list.length} 个插件，请确定你已经阅读过它们的文档以确保你符合安装条件，否则安装过程中部分插件可能安装失败。`)) {
+            return
+        }
+
+        this.batchInstallProcess.status = {}
+        this.batchInstallProcess.percentage = 0
+
+        await this.batchInstallDialog.asyncShow()
+
+        await RequestControl.silentRequest(async () => {
+            for (const index in list) {
+                const item = list[index]
+
+                let res: any
+                if (item.upgrade) {
+                    res = await upgradePlugin(item)
+                } else {
+                    res = await installPlugin(item)
+                }
+
+                this.batchInstallProcess.status[item.plugin_id] = res ? 'success' : 'error'
+                this.batchInstallProcess.percentage = Number(((Number(index) + 1) / list.length * 100).toFixed(0))
+            }
+        })
+    }
+
+    public selectPlugin (item: PluginItem) {
+        this.batchList[item.plugin_id] = item
+    }
+
+    public unselectedPlugin (item: PluginItem) {
+        delete this.batchList[item.plugin_id]
+    }
 }
 </script>
 
@@ -483,6 +593,38 @@ export default class ShopCustom extends Vue {
 
     & > a:not(:last-child) {
         margin-bottom: 2px;
+    }
+}
+
+.batch-install-plugins {
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 30px;
+
+    & > div {
+        width: calc(20% - 10px);
+        padding: 2px 10px 2px 5px;
+        margin-right: 10px;
+        margin-bottom: 5px;
+        border: 1px solid #e3e3e3;
+        border-radius: 4px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        display: flex;
+        align-items: center;
+    }
+
+    & > div.success {
+        color: #4CAF50;
+        border-color: #4CAF50;
+        background-color: #E8F5E9;
+    }
+
+    & > div.error {
+        color: #F44336;
+        border-color: #F44336;
+        background-color: #FFEBEE;
     }
 }
 </style>

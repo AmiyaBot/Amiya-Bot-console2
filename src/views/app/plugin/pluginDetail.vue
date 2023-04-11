@@ -73,6 +73,10 @@ export interface PluginItem extends StringDict {
     'description': string
     'document': string
     'allow_config': boolean
+    'installed'?: boolean
+    'upgrade'?: boolean
+    'higher'?: boolean
+    'curr_version'?: string
 }
 
 export function pluginLogo (item: PluginItem) {
@@ -171,20 +175,34 @@ export default class PluginDetail extends Vue {
     width: 35px;
     height: 35px;
     margin-right: 10px;
-    border-radius: 4px;
     border: 1px solid var(--el-card-border-color);
     box-shadow: var(--el-box-shadow-light);
     display: flex;
     align-items: center;
-    overflow: hidden;
+    position: relative;
 
     &.detail {
         width: 50px;
         height: 50px;
+
     }
 
     img {
         width: 100%;
+        border-radius: 4px;
+    }
+
+    & > .installed-icon {
+        width: 16px;
+        height: 16px;
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        background: url(../../../assets/icon/plugin/ok2.svg) center / 100% no-repeat;
+    }
+
+    &.detail > .installed-icon {
+        display: none;
     }
 }
 </style>
