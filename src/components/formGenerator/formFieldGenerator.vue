@@ -46,9 +46,9 @@
 
             <!-- 字符串/数字数组编辑 -->
             <template v-if="item.type === 'values'">
-                <div v-if="form[item.field] && form[item.field].length">
+                <div v-if="form[item.field] && form[item.field].length" style="width: 100%">
                     <template v-for="(n, index) in form[item.field]" :key="index">
-                        <div style="display: flex">
+                        <div style="width: 100%; display: flex;">
                             <el-input v-model="form[item.field][index]" :class="item.field + index"
                                       v-if="form[item.field][index] !== undefined"
                                       style="width: calc(100% - 51px)">

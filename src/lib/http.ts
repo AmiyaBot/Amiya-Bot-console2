@@ -17,26 +17,47 @@ interface HttpOptions {
     host?: string
 }
 
-export class RequestCon {
+interface AsyncCallback {
+    (): Promise<any>
+}
+
+export class RequestControl {
     static requesting = 0
     static loadingInstance: LoadingInstance
 
+    static loadingShow = true
+    static notifyShow = true
+
     static loading (text = '等待服务器处理...') {
         this.requesting += 1
-        this.loadingInstance = ElLoadingService(
-            {
-                fullscreen: true,
-                text: text,
-                customClass: 'v-loading'
-            }
-        )
+        if (this.loadingShow) {
+            this.loadingInstance = ElLoadingService(
+                {
+                    fullscreen: true,
+                    text: text,
+                    customClass: 'v-loading'
+                }
+            )
+        }
     }
 
     static closeLoading () {
         this.requesting -= 1
-        if (this.requesting === 0) {
+        if (this.loadingInstance && this.requesting === 0) {
             this.loadingInstance.close()
         }
+    }
+
+    static async silentRequest (callback: AsyncCallback) {
+        this.loadingShow = false
+        this.notifyShow = false
+        try {
+            callback && await callback()
+        } catch (e) {
+            console.error(e)
+        }
+        this.loadingShow = true
+        this.notifyShow = true
     }
 }
 
@@ -97,7 +118,7 @@ export default class HttpRequest {
             }
         }
 
-        RequestCon.loading()
+        RequestControl.loading()
 
         return config
     }
@@ -105,16 +126,18 @@ export default class HttpRequest {
     onResponse (response: AxiosResponse) {
         const data = response.data
 
-        RequestCon.closeLoading()
+        RequestControl.closeLoading()
 
         switch (data.code) {
             case 200:
-                if (data.message) {
+                if (data.message && RequestControl.notifyShow) {
                     Notice.notify(data.message, '提示', 'success')
                 }
                 break
             case 500:
-                Notice.notify(data.message, '操作未成功', 'error')
+                if (data.message && RequestControl.notifyShow) {
+                    Notice.notify(data.message, '操作未成功', 'error')
+                }
                 return undefined
         }
 
@@ -131,7 +154,7 @@ export default class HttpRequest {
             errorMessage = '接口请求失败'
         }
 
-        RequestCon.closeLoading()
+        RequestControl.closeLoading()
 
         Notice.notify(errorMessage, error.code, 'error', 10000)
     }

@@ -1,5 +1,6 @@
 <template>
-    <el-dialog v-model="dialogVisible" :title="title" :append-to-body="appendToBody" :width="width" destroy-on-close>
+    <el-dialog v-model="dialogVisible" :title="title" :append-to-body="appendToBody" :width="width" destroy-on-close
+               @closed="() => $emit('closed')">
         <template #default>
             <slot></slot>
         </template>
@@ -10,19 +11,17 @@
 import { Options, Vue } from 'vue-class-component'
 
 @Options({
+    emits: [
+        'closed'
+    ],
     props: {
         title: String,
         width: String,
-        appendToBody: Boolean,
-        labelWidth: {
-            type: String,
-            default: () => '100px'
-        }
+        appendToBody: Boolean
     }
 })
 export default class VDialog extends Vue {
     title!: string
-    labelWidth!: string
 
     private dialogVisible = false
 
@@ -30,8 +29,18 @@ export default class VDialog extends Vue {
         this.dialogVisible = true
     }
 
+    public async asyncShow () {
+        this.dialogVisible = true
+        await this.$nextTick()
+    }
+
     public hide () {
         this.dialogVisible = false
+    }
+
+    public async asyncHide () {
+        this.dialogVisible = false
+        await this.$nextTick()
     }
 }
 </script>

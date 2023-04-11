@@ -30,7 +30,6 @@ import { StringDict } from '@/lib/common'
 export default class VFormDialog extends Vue {
     form!: StringDict
     title!: string
-    labelWidth!: string
 
     private dialogVisible = false
 
@@ -38,8 +37,18 @@ export default class VFormDialog extends Vue {
         this.dialogVisible = true
     }
 
+    public async asyncShow () {
+        this.dialogVisible = true
+        await this.$nextTick()
+    }
+
     public hide () {
         this.dialogVisible = false
+    }
+
+    public async asyncHide () {
+        this.dialogVisible = false
+        await this.$nextTick()
     }
 }
 </script>

@@ -5,7 +5,7 @@
             <template v-for="(item, index) in pluginList" :key="index">
                 <el-tab-pane :name="item.plugin_id">
                     <template #label>
-                        <div style="display: flex;align-items: center;">
+                        <div style="width: 100%; display: flex; align-items: center;">
                             <div class="plugin-icon">
                                 <img :src="pluginLogo(item)" alt="logo" v-if="pluginLogo(item)">
                             </div>
