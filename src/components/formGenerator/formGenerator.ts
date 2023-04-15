@@ -105,11 +105,15 @@ class BuildFromSchema {
                 switch (schemaItem.type) {
                     case 'array':
                         item.type = 'values'
-                        if (!item.value) {
-                            item.value = []
-                        }
-                        if (item.value.length) {
-                            item.factory = item.value[0].constructor
+
+                        switch (schemaItem.items.type) {
+                            case 'integer':
+                                item.factory = Number
+                                break
+                            case 'object':
+                                item.type = 'table'
+                                item.tableForm = this.build(schemaItem.items, schemaItem.title, field)
+                                break
                         }
                         break
                     case 'boolean':

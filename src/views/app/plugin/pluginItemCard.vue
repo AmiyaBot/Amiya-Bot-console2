@@ -9,7 +9,7 @@
             </div>
             <div class="plugin-info">
                 <div class="plugin-name">
-                    <div>
+                    <div class="plugin-name-text">
                         <slot :item="item" name="name">{{ item.name }}</slot>
                     </div>
                     <div class="official-icon" v-if="item.plugin_type === 'official'"></div>
@@ -105,7 +105,7 @@ export default class PluginItemCard extends Vue {
 .plugin-item {
     width: 240px;
     padding: 5px;
-    margin: 2px 5px;
+    margin: 1px;
     border: 1px solid transparent;
     border-radius: 4px;
     display: flex;
