@@ -110,7 +110,7 @@ export default class PluginDetail extends Vue {
 }
 </script>
 
-<style scoped lang="scss">
+<style lang="scss">
 .plugin-detail-header {
     display: flex;
     align-items: center;
@@ -128,6 +128,13 @@ export default class PluginDetail extends Vue {
 
     &.detail > div {
         font-size: 20px;
+    }
+
+    .plugin-name-text {
+        max-width: 125px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis !important;
     }
 }
 
@@ -169,14 +176,12 @@ export default class PluginDetail extends Vue {
     max-height: 400px;
     overflow: auto;
 }
-</style>
-<style lang="scss">
+
 .plugin-icon {
     width: 35px;
     height: 35px;
     margin-right: 10px;
     border: 1px solid var(--el-card-border-color);
-    box-shadow: var(--el-box-shadow-light);
     display: flex;
     align-items: center;
     position: relative;
