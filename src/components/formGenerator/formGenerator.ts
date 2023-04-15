@@ -1,7 +1,7 @@
 import Common, { StringDict } from '@/lib/common'
-import { JsonSchema } from '@/components/formGenerator/formJsonSchema'
+import { JsonSchema, SchemaItem } from '@/components/formGenerator/formJsonSchema'
 
-type FormType = 'input' | 'number' | 'select' | 'boolean' | 'values' | 'table' | 'unsupported'
+type FormType = 'input' | 'number' | 'select' | 'boolean' | 'values' | 'table' | 'unsupported' | ''
 
 export class FormItem {
     type: FormType = 'input'
@@ -10,6 +10,11 @@ export class FormItem {
     title = ''
     description = ''
     required = false
+
+    minimum = -Infinity
+    maximum = Infinity
+
+    subType: FormType = ''
 
     tableForm: any = null
     options: StringDict = {}
@@ -95,25 +100,30 @@ class BuildFromSchema {
             item.required = !!(schema.required && schema.required.indexOf(field) >= 0)
 
             if (schemaItem.enum && schemaItem.enum.length) {
-                item.type = 'select'
-                item.factory = schemaItem.enum[0].constructor
-
-                for (const option of schemaItem.enum) {
-                    item.options[option] = option
-                }
+                this.buildSelector(item, schemaItem)
             } else {
                 switch (schemaItem.type) {
                     case 'array':
                         item.type = 'values'
+                        item.subType = 'input'
 
-                        switch (schemaItem.items.type) {
-                            case 'integer':
-                                item.factory = Number
-                                break
-                            case 'object':
-                                item.type = 'table'
-                                item.tableForm = this.build(schemaItem.items, schemaItem.title, field)
-                                break
+                        if (schemaItem.items) {
+                            switch (schemaItem.items.type) {
+                                case 'integer':
+                                    item.subType = 'number'
+                                    item.factory = Number
+                                    item.minimum = schemaItem.items.minimum || -Infinity
+                                    item.maximum = schemaItem.items.maximum || Infinity
+                                    break
+                                case 'object':
+                                    item.type = 'table'
+                                    item.tableForm = this.build(schemaItem.items, schemaItem.title, field)
+                                    break
+                            }
+                        }
+
+                        if (!item.value) {
+                            item.value = []
                         }
                         break
                     case 'boolean':
@@ -127,6 +137,8 @@ class BuildFromSchema {
                     case 'integer':
                         item.type = 'number'
                         item.factory = Number
+                        item.minimum = schemaItem.minimum || -Infinity
+                        item.maximum = schemaItem.maximum || Infinity
                         if (!item.value) {
                             item.value = 0
                         }
@@ -143,6 +155,15 @@ class BuildFromSchema {
         }
 
         return group
+    }
+
+    static buildSelector (item: FormItem, schemaItem: SchemaItem) {
+        item.type = 'select'
+        item.factory = schemaItem.enum[0].constructor
+
+        for (const option of schemaItem.enum) {
+            item.options[option] = option
+        }
     }
 }
 

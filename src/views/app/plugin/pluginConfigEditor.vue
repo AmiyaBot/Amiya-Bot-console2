@@ -24,6 +24,9 @@
                            @click="save">
                     保存
                 </el-button>
+                <el-button type="warning" @click="reset">
+                    重置为默认
+                </el-button>
                 <template v-if="channelGenerator">
                     <el-button v-if="selectedSource" @click="saveAs">另存为...</el-button>
                     <el-button v-if="selectedSource" type="danger" @click="deleteConfig">删除</el-button>
@@ -208,6 +211,14 @@ export default class PluginConfigEditor extends Vue {
             )
         })
         await this.getConfig()
+    }
+
+    async reset () {
+        if (this.selectedSource) {
+            this.channelFormData = Common.deepCopy(this.channelFormDefaultData)
+        } else {
+            this.globalFormData = Common.deepCopy(this.globalFormDefaultData)
+        }
     }
 
     async saveAs () {

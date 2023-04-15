@@ -19,24 +19,6 @@
                 </div>
             </template>
 
-            <!-- 输入框 -->
-            <template v-if="item.type === 'input' || item.type === 'number'">
-                <el-input v-model="form[item.field]"
-                          :placeholder="(item.value || `请输入${itemLabel(item)}`).toString()"/>
-            </template>
-
-            <!-- 选择框 -->
-            <template v-if="item.type === 'select'">
-                <el-select v-model="form[item.field]" :placeholder="`请选择${itemLabel(item)}`">
-                    <el-option v-for="(n, i) in item.options" :key="i" :value="item.factory(n)">{{ n }}</el-option>
-                </el-select>
-            </template>
-
-            <!-- 切换按钮 -->
-            <template v-if="item.type === 'boolean'">
-                <el-switch v-model="form[item.field]"/>
-            </template>
-
             <!-- 子表单 -->
             <template v-if="item.type === 'form'">
                 <el-card style="width: 100%">
@@ -45,17 +27,19 @@
             </template>
 
             <!-- 字符串/数字数组编辑 -->
-            <template v-if="item.type === 'values'">
+            <template v-else-if="item.type === 'values'">
                 <div v-if="form[item.field] && form[item.field].length" style="width: 100%">
                     <template v-for="(n, index) in form[item.field]" :key="index">
                         <div style="width: 100%; display: flex;">
-                            <el-input v-model="form[item.field][index]" :class="item.field + index"
-                                      v-if="form[item.field][index] !== undefined"
-                                      style="width: calc(100% - 51px)">
+                            <form-field-type :form="form[item.field]" :bind="index.toString()" :item="item"
+                                             :item-label="itemLabel"
+                                             :class="item.field + index"
+                                             v-if="form[item.field][index] !== undefined"
+                                             style="width: calc(100% - 51px)">
                                 <template #append>
                                     <el-button @click="delValue(item, index)" :icon="delIcon"/>
                                 </template>
-                            </el-input>
+                            </form-field-type>
                             <el-button v-if="index === form[item.field].length - 1" @click="addValue(item)"
                                        style="margin-left: 5px"
                                        :icon="addIcon"/>
@@ -66,7 +50,7 @@
             </template>
 
             <!-- 对象数组编辑 -->
-            <template v-if="item.type === 'table'">
+            <template v-else-if="item.type === 'table'">
                 <el-card style="width: 100%">
                     <el-table border header-cell-class-name="v-table-header" :data="form[item.field]"
                               style="width: 100%">
@@ -78,8 +62,9 @@
                                              :prop="n.field"
                                              :label="$t(n.field)">
                                 <template #default="scope">
-                                    <el-input style="border: none" v-model="form[item.field][scope.$index][n.field]"
-                                              size="small"/>
+                                    <form-field-type style="border: none" size="small" :item="n" :item-label="itemLabel"
+                                                     :form="form[item.field][scope.$index]"
+                                                     :bind="n.field"/>
                                 </template>
                             </el-table-column>
                         </template>
@@ -96,9 +81,11 @@
                 </el-card>
             </template>
 
-            <template v-if="item.type === 'unsupported'">
+            <template v-else-if="item.type === 'unsupported'">
                 不支持的编辑类型
             </template>
+
+            <form-field-type v-else :form="form" :bind="item.field" :item="item" :item-label="itemLabel"/>
 
         </el-form-item>
     </template>
@@ -111,9 +98,11 @@ import { FormGroup, FormItem } from '@/components/formGenerator/formGenerator'
 import { Plus, Minus, QuestionFilled } from '@element-plus/icons-vue'
 import { StringDict } from '@/lib/common'
 
+import FormFieldType from '@/components/formGenerator/formFieldType.vue'
+
 @Options({
     name: 'formFieldGenerator',
-    components: { QuestionFilled },
+    components: { QuestionFilled, FormFieldType },
     props: {
         form: Object,
         items: Array

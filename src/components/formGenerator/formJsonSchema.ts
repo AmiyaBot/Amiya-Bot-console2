@@ -2,15 +2,17 @@ import { StringDict } from '@/lib/common'
 
 type SchemaType = 'array' | 'boolean' | 'integer' | 'null' | 'number' | 'object' | 'string'
 
-interface Schema {
+export interface Schema {
     type: SchemaType
     title: string
+    minimum: number
+    maximum: number
     default: any
     description: string
     enum: Array<string>
 }
 
-interface SchemaItem extends Schema {
+export interface SchemaItem extends Schema {
     items: Schema
 }
 
