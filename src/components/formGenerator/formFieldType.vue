@@ -12,9 +12,15 @@
 
         <!-- 数字输入框 -->
         <template v-if="type === 'number'">
-            <el-input-number v-model="form[bind]" controls-position="right" :size="size"
-                             :min="item.minimum"
-                             :max="item.maximum"/>
+            <div class="number-input">
+                <el-input-number v-model="form[bind]" :controls="false" :size="size"
+                                 :class="{ 'has-button': $slots.append }"
+                                 :min="item.minimum"
+                                 :max="item.maximum"/>
+                <template v-if="$slots.append">
+                    <slot name="append"></slot>
+                </template>
+            </div>
         </template>
 
         <!-- 选择框 -->
@@ -65,6 +71,20 @@ export default class FormFieldType extends Vue {
 
     input {
         text-align: left !important;
+    }
+}
+
+.number-input {
+    display: flex;
+
+    button {
+        color: var(--el-color-info);
+        background-color: var(--el-fill-color-light);
+        border-radius: 0 4px 4px 0;
+    }
+
+    & > .has-button .el-input__wrapper {
+        border-radius: 4px 0 0 4px;
     }
 }
 </style>

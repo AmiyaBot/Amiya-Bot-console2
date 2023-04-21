@@ -18,6 +18,8 @@
                     <el-tag effect="light" v-if="value === 0">普通卡池</el-tag>
                     <el-tag effect="dark" v-else-if="value === 1" type="danger">限定卡池</el-tag>
                     <el-tag effect="dark" v-else-if="value === 2" type="success">联合寻访</el-tag>
+                    <el-tag effect="dark" v-else-if="value === 3" type="warning">前路回响</el-tag>
+                    <el-tag effect="light" v-else-if="value === 4" type="info">中坚寻访</el-tag>
                 </template>
             </template>
             <template #operations="{row}">
