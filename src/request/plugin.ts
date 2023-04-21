@@ -74,12 +74,10 @@ export async function installPlugin (data: StringDict) {
 }
 
 export async function upgradePlugin (data: StringDict) {
-    if (await Notice.confirm('更新插件前请备份插件的一些配置文件，以防信息丢失。', '请注意', 'warning', ['更新', '去备份'])) {
-        return await request.post({
-            url: '/plugin/upgradePlugin',
-            data: getPluginPostData(data)
-        })
-    }
+    return await request.post({
+        url: '/plugin/upgradePlugin',
+        data: getPluginPostData(data)
+    })
 }
 
 export async function uninstallPlugin (data: StringDict) {
