@@ -37,6 +37,8 @@
                     <el-option label="普通卡池" :value="0"/>
                     <el-option label="限定卡池" :value="1"/>
                     <el-option label="联合寻访" :value="2"/>
+                    <el-option label="前路回响" :value="3"/>
+                    <el-option label="中坚寻访" :value="4"/>
                 </el-select>
             </el-form-item>
             <template v-for="(field, r) in {'r6': 'pickup_6', 'r5': 'pickup_5', 'r4': 'pickup_4'}" :key="field">
