@@ -58,9 +58,20 @@
                             <el-link type="primary" @click="addRow(item)">添加</el-link>
                         </template>
                         <template v-for="(n, index) in item.tableForm.formItems" :key="index">
-                            <el-table-column v-if="n.type === 'input' || n.type === 'number'"
-                                             :prop="n.field"
-                                             :label="$t(n.field)">
+                            <el-table-column :prop="n.field">
+                                <template #header>
+                                    <div class="table-header">
+                                        <span>{{ $t(n.title || n.field) }}</span>
+                                        <el-tooltip placement="top" v-if="n.description">
+                                            <template #content>
+                                                {{ n.description }}
+                                            </template>
+                                            <el-icon style="cursor: help; margin-left: 5px">
+                                                <QuestionFilled/>
+                                            </el-icon>
+                                        </el-tooltip>
+                                    </div>
+                                </template>
                                 <template #default="scope">
                                     <form-field-type style="border: none" size="small" :item="n" :item-label="itemLabel"
                                                      :form="form[item.field][scope.$index]"
@@ -163,5 +174,14 @@ export default class FormFieldGenerator extends Vue {
 .item-label {
     display: flex;
     align-items: center;
+}
+
+.table-header {
+    display: flex;
+    align-items: center;
+
+    .el-icon {
+        color: var(--el-text-color-regular) !important;
+    }
 }
 </style>
