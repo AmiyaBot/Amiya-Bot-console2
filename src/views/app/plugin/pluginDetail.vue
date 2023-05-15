@@ -42,14 +42,21 @@
             <slot :item="item" name="button"></slot>
         </div>
     </div>
-    <div class="plugin-desc">{{ item.description }}</div>
-    <el-card>
+    <div class="plugin-desc" ref="description">{{ item.description }}</div>
+    <el-card :style="{ height: docHeight() }">
         <template #header>
             <div style="display: flex;align-items: center;">
-                <el-icon>
+                <el-icon style="margin-right: 3px">
                     <Collection/>
                 </el-icon>
-                <span style="margin-left: 3px">插件文档</span>
+                <el-button link :type="docPage === 0 ? 'primary' : ''" @click="docPage = 0">插件文档</el-button>
+                <template v-if="item.instruction">
+                    <el-divider direction="vertical"/>
+                    <el-icon style="margin-right: 3px">
+                        <Collection/>
+                    </el-icon>
+                    <el-button link :type="docPage === 1 ? 'primary' : ''" @click="docPage = 1">使用说明</el-button>
+                </template>
             </div>
         </template>
         <div class="plugin-doc">
@@ -61,17 +68,19 @@
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component'
 import { marked } from 'marked'
-import { StringDict } from '@/lib/common'
+import Common, { StringDict } from '@/lib/common'
 import { Discount, User, Download, Collection } from '@element-plus/icons-vue'
 import { amiyaBotServerHost } from '@/request/remote/amiyabotServer'
 
 export interface PluginItem extends StringDict {
+    'logo': string
     'name': string
     'version': string
     'plugin_id': string
     'plugin_type': string
     'description': string
     'document': string
+    'instruction': string
     'allow_config': boolean
     'installed'?: boolean
     'upgrade'?: boolean
@@ -80,7 +89,17 @@ export interface PluginItem extends StringDict {
 }
 
 export function pluginLogo (item: PluginItem) {
-    return item.logo.startsWith('data:image/png;') ? item.logo : (amiyaBotServerHost + '/image?path=' + item.logo)
+    const logo = item.logo
+    if (!logo) {
+        return logo
+    }
+    if (logo.startsWith('data:image/png;')) {
+        return logo
+    }
+    if (logo.startsWith('/')) {
+        return Common.getData('host') + logo
+    }
+    return amiyaBotServerHost + '/image?path=' + logo
 }
 
 @Options({
@@ -99,13 +118,29 @@ export function pluginLogo (item: PluginItem) {
         logo () {
             return pluginLogo(this.item)
         }
+    },
+    methods: {
+        docHeight () {
+            const descHeight = 'description' in this.$refs ? this.$refs.description.clientHeight : 0
+
+            console.log(descHeight)
+
+            return `calc(100% - 50px - ${descHeight}px)`
+        }
+    },
+    mounted () {
+        this.$nextTick(() => {
+            this.$forceUpdate()
+        })
     }
 })
 export default class PluginDetail extends Vue {
     item!: PluginItem
 
+    public docPage = 0
+
     public pluginDoc () {
-        return marked.parse(this.item.document)
+        return marked.parse(this.docPage === 0 ? this.item.document : this.item.instruction)
     }
 }
 </script>
@@ -145,7 +180,9 @@ export default class PluginDetail extends Vue {
 }
 
 .plugin-desc {
-    margin: 30px 0;
+    padding: 30px 0;
+    max-height: 100px;
+    overflow: auto;
 }
 
 .plugin-detail-info {

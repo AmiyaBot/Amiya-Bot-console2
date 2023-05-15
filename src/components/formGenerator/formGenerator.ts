@@ -30,6 +30,8 @@ export class FormGroup {
     type = 'form'
     name: string
     field: string
+    description = ''
+
     formItems: Array<FormItem | FormGroup> = []
 
     constructor (name: string, field = '') {
@@ -87,8 +89,10 @@ class BuildFromJson {
 }
 
 class BuildFromSchema {
-    static build (schema: JsonSchema, name: string, groupField = '') {
+    static build (schema: JsonSchema, name: string, desc: string, groupField: string) {
         const group = new FormGroup(name, groupField)
+
+        group.description = desc
 
         for (const field in schema.properties) {
             const schemaItem = schema.properties[field]
@@ -117,7 +121,7 @@ class BuildFromSchema {
                                     break
                                 case 'object':
                                     item.type = 'table'
-                                    item.tableForm = this.build(schemaItem.items, schemaItem.title, field)
+                                    item.tableForm = this.build(schemaItem.items, item.title, item.description, field)
                                     break
                             }
                         }
@@ -144,7 +148,7 @@ class BuildFromSchema {
                         }
                         break
                     case 'object':
-                        group.append(this.build(schemaItem, schemaItem.title, field))
+                        group.append(this.build(schemaItem, item.title, item.description, field))
                         continue
                     case 'null':
                         continue
@@ -172,7 +176,7 @@ export default class FormGenerator {
 
     constructor (dict: JsonSchema, isSchema = false) {
         if (isSchema) {
-            this.form = BuildFromSchema.build(dict, '')
+            this.form = BuildFromSchema.build(dict, '', '', '')
         } else {
             this.form = BuildFromJson.build(Common.deepCopy(dict), new FormGroup(''))
         }
