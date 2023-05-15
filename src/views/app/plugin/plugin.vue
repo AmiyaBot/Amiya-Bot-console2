@@ -79,12 +79,14 @@ import Notice from '@/lib/message'
 export default class Plugin extends Vue {
     public pluginList = []
     public plugin: PluginItem = {
+        logo: '',
         name: '',
         version: '',
         plugin_id: '',
         plugin_type: '',
         description: '',
         document: '',
+        instruction: '',
         allow_config: false
     }
 
