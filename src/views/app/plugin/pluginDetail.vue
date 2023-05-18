@@ -43,26 +43,29 @@
         </div>
     </div>
     <div class="plugin-desc" ref="description">{{ item.description }}</div>
-    <el-card :style="{ height: docHeight() }">
-        <template #header>
-            <div style="display: flex;align-items: center;">
-                <el-icon style="margin-right: 3px">
-                    <Collection/>
-                </el-icon>
-                <el-button link :type="docPage === 0 ? 'primary' : ''" @click="docPage = 0">插件文档</el-button>
-                <template v-if="item.instruction">
-                    <el-divider direction="vertical"/>
+    <div :style="{ height: docHeight() }" style="padding: 10px">
+        <el-card :body-style="{ height: 'calc(100% - 57px)', overflow: 'auto' }"
+                 style="height: 100%; transition: none">
+            <template #header>
+                <div style="display: flex;align-items: center;">
                     <el-icon style="margin-right: 3px">
                         <Collection/>
                     </el-icon>
-                    <el-button link :type="docPage === 1 ? 'primary' : ''" @click="docPage = 1">使用说明</el-button>
-                </template>
+                    <el-button link :type="docPage === 0 ? 'primary' : ''" @click="docPage = 0">插件文档</el-button>
+                    <template v-if="item.instruction">
+                        <el-divider direction="vertical"/>
+                        <el-icon style="margin-right: 3px">
+                            <Collection/>
+                        </el-icon>
+                        <el-button link :type="docPage === 1 ? 'primary' : ''" @click="docPage = 1">使用说明</el-button>
+                    </template>
+                </div>
+            </template>
+            <div class="plugin-doc">
+                <div class="markdown-body" v-html="pluginDoc()"></div>
             </div>
-        </template>
-        <div class="plugin-doc">
-            <div class="markdown-body" v-html="pluginDoc()"></div>
-        </div>
-    </el-card>
+        </el-card>
+    </div>
 </template>
 
 <script lang="ts">
@@ -122,8 +125,6 @@ export function pluginLogo (item: PluginItem) {
     methods: {
         docHeight () {
             const descHeight = 'description' in this.$refs ? this.$refs.description.clientHeight : 0
-
-            console.log(descHeight)
 
             return `calc(100% - 50px - ${descHeight}px)`
         }
@@ -209,9 +210,19 @@ export default class PluginDetail extends Vue {
     }
 }
 
-.plugin-doc {
-    max-height: 400px;
-    overflow: auto;
+.plugin-head {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+    cursor: pointer;
+
+    .plugin-title {
+        width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis !important;
+        white-space: nowrap;
+    }
 }
 
 .plugin-icon {
@@ -226,7 +237,6 @@ export default class PluginDetail extends Vue {
     &.detail {
         width: 50px;
         height: 50px;
-
     }
 
     img {
