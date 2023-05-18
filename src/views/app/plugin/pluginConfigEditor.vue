@@ -53,7 +53,7 @@
             </el-empty>
         </el-form>
     </div>
-    <el-empty v-else description="无法配置插件"/>
+    <el-empty v-else description="无插件配置"/>
 </template>
 
 <script lang="ts">

@@ -1,19 +1,22 @@
 <template>
     <div>
-        <el-tabs v-if="pluginList.length" tab-position="left" style="height: 100%" v-model="selected"
-                 :before-leave="checkUpdated">
-            <template v-for="(item, index) in pluginList" :key="index">
-                <el-tab-pane :name="item.plugin_id">
-                    <template #label>
-                        <div style="width: 100%; display: flex; align-items: center;">
-                            <div class="plugin-icon">
-                                <img :src="pluginLogo(item)" alt="logo" v-if="pluginLogo(item)">
-                            </div>
-                            <div>{{ item.name }}</div>
+        <div v-if="pluginList.length" class="plugin-manager">
+            <el-scrollbar class="plugin-list">
+                <template v-for="(item, index) in pluginList" :key="index">
+                    <div class="plugin-head" @click="plugin = item">
+                        <div class="plugin-icon">
+                            <img :src="pluginLogo(item)" alt="logo" v-if="pluginLogo(item)">
                         </div>
-                    </template>
-
-                    <el-tabs type="border-card" v-if="selected === item.plugin_id" style="height: 100%"
+                        <div style="width: calc(100% - 50px)">
+                            <div class="plugin-title">{{ item.name }}</div>
+                            <div style="font-size: 12px; color: var(--el-color-primary)">{{ item.version }}</div>
+                        </div>
+                    </div>
+                </template>
+            </el-scrollbar>
+            <div class="plugin-page">
+                <template v-for="(item, index) in pluginList" :key="index">
+                    <el-tabs type="border-card" v-if="plugin.plugin_id === item.plugin_id" style="height: 100%"
                              class="plugin-card-body">
                         <el-tab-pane label="插件详情" class="plugin-panel">
                             <plugin-detail :item="item">
@@ -30,10 +33,9 @@
                             <plugin-config-editor :item="item" @change="value => pluginChanged = value"/>
                         </el-tab-pane>
                     </el-tabs>
-
-                </el-tab-pane>
-            </template>
-        </el-tabs>
+                </template>
+            </div>
+        </div>
         <div v-else>
             <el-empty description="未安装任何插件"/>
         </div>
@@ -60,8 +62,11 @@ import Notice from '@/lib/message'
         Warning
     },
     watch: {
-        selected () {
-            this.pluginChanged = false
+        plugin: {
+            handler () {
+                this.pluginChanged = false
+            },
+            deep: true
         }
     },
     mounted () {
@@ -90,7 +95,6 @@ export default class Plugin extends Vue {
         allow_config: false
     }
 
-    private selected = ''
     private pluginChanged = false
 
     pluginLogo (item: PluginItem) {
@@ -102,7 +106,7 @@ export default class Plugin extends Vue {
         if (res) {
             this.pluginList = res.data
             if (res.data.length) {
-                this.selected = res.data[0].plugin_id
+                this.plugin = res.data[0]
             }
         }
     }
@@ -124,15 +128,26 @@ export default class Plugin extends Vue {
 </script>
 
 <style scoped lang="scss">
-.plugin-list {
-    display: flex;
-    flex-wrap: wrap;
-}
-
-.plugin-panel {
+.plugin-manager {
     height: 100%;
-    overflow: auto;
-    padding-right: 20px;
+    display: flex;
+
+    .plugin-list {
+        width: 260px;
+        height: 100%;
+        overflow: auto;
+    }
+
+    .plugin-page {
+        width: 100%;
+        height: 100%;
+
+        .plugin-panel {
+            height: 100%;
+            overflow: hidden;
+            padding-right: 20px;
+        }
+    }
 }
 </style>
 <style>
