@@ -1,5 +1,5 @@
 <template>
-    <div v-if="(channelGenerator || globalGenerator) && channelList.length">
+    <div v-if="(channelGenerator || globalGenerator) && channelList.length" style="height: 100%; overflow: auto;">
         <el-form label-width="auto">
             <el-form-item label="选择配置">
                 <el-select v-model="selectedSource" @change="getSourceConfig" ref="selectSource">

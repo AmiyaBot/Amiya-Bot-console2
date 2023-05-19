@@ -8,7 +8,9 @@
                             <img :src="pluginLogo(item)" alt="logo" v-if="pluginLogo(item)">
                         </div>
                         <div style="width: calc(100% - 50px)">
-                            <div class="plugin-title">{{ item.name }}</div>
+                            <div class="plugin-title" :class="{ selected: plugin.plugin_id === item.plugin_id }">
+                                {{ item.name }}
+                            </div>
                             <div style="font-size: 12px; color: var(--el-color-primary)">{{ item.version }}</div>
                         </div>
                     </div>

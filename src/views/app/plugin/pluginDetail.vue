@@ -222,6 +222,10 @@ export default class PluginDetail extends Vue {
         overflow: hidden;
         text-overflow: ellipsis !important;
         white-space: nowrap;
+
+        &.selected {
+            color: var(--el-color-primary);
+        }
     }
 }
 
