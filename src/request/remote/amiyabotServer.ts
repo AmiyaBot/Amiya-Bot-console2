@@ -1,7 +1,7 @@
 import HttpRequest from '@/lib/http'
 import { StringDict } from '@/lib/common'
 
-export const amiyaBotServerHost = 'https://server.amiyabot.com:8020'
+export const amiyaBotServerHost = 'http://119.29.87.110:8020'
 export const uploadPluginUrl = amiyaBotServerHost + '/uploadPlugin'
 
 export const amiyaBotServer = new HttpRequest({
