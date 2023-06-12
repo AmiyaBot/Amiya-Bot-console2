@@ -7,7 +7,7 @@
                         <div class="plugin-icon">
                             <img :src="pluginLogo(item)" alt="logo" v-if="pluginLogo(item)">
                         </div>
-                        <div style="width: calc(100% - 50px)">
+                        <div style="padding-right: 20px">
                             <div class="plugin-title" :class="{ selected: plugin.plugin_id === item.plugin_id }">
                                 {{ item.name }}
                             </div>
@@ -23,7 +23,9 @@
                         <el-tab-pane label="插件详情" class="plugin-panel">
                             <plugin-detail :item="item">
                                 <template #button>
-                                    <el-button round type="danger" @click="uninstall(item)">卸载</el-button>
+                                    <el-button round type="primary" @click="reload(item, true)">重新安装插件</el-button>
+                                    <el-button round type="warning" @click="reload(item, false)">重载插件</el-button>
+                                    <el-button round type="danger" @click="uninstall(item)">卸载插件</el-button>
                                 </template>
                             </plugin-detail>
                         </el-tab-pane>
@@ -47,7 +49,7 @@
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component'
 import { onBeforeRouteLeave } from 'vue-router'
-import { getInstalledPlugin, uninstallPlugin } from '@/request/plugin'
+import { getInstalledPlugin, uninstallPlugin, reloadPlugin } from '@/request/plugin'
 import { Warning } from '@element-plus/icons-vue'
 
 import PluginDetail, { PluginItem, pluginLogo } from '@/views/app/plugin/pluginDetail.vue'
@@ -120,6 +122,13 @@ export default class Plugin extends Vue {
         }
     }
 
+    async reload (item: PluginItem, force: boolean) {
+        const res = await reloadPlugin(item, force)
+        if (res) {
+            await this.getPlugin()
+        }
+    }
+
     async checkUpdated () {
         if (this.pluginChanged) {
             return await Notice.confirm('当前配置尚未保存，是否放弃修改？', '注意', 'warning', ['放弃', '再想一想'])
@@ -135,13 +144,13 @@ export default class Plugin extends Vue {
     display: flex;
 
     .plugin-list {
-        width: 260px;
+        width: fit-content;
         height: 100%;
         overflow: auto;
     }
 
     .plugin-page {
-        width: 100%;
+        flex: 2;
         height: 100%;
 
         .plugin-panel {

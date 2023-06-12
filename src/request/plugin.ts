@@ -88,3 +88,15 @@ export async function uninstallPlugin (data: StringDict) {
         })
     }
 }
+
+export async function reloadPlugin (data: StringDict, force: boolean) {
+    if (await Notice.confirm('此操作将重新运行插件【' + data.name + '】')) {
+        return await request.post({
+            url: '/plugin/reloadPlugin',
+            data: {
+                ...data,
+                force
+            }
+        })
+    }
+}
