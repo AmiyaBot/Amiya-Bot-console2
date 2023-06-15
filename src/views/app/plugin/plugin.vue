@@ -20,7 +20,7 @@
                 <template v-for="(item, index) in pluginList" :key="index">
                     <el-tabs type="border-card" v-if="plugin.plugin_id === item.plugin_id" style="height: 100%"
                              class="plugin-card-body">
-                        <el-tab-pane label="插件详情" class="plugin-panel">
+                        <el-tab-pane label="插件详情" class="plugin-panel" lazy>
                             <plugin-detail :item="item">
                                 <template #button>
                                     <el-button round type="primary" @click="reload(item, true)">重新安装插件</el-button>
@@ -29,7 +29,7 @@
                                 </template>
                             </plugin-detail>
                         </el-tab-pane>
-                        <el-tab-pane class="plugin-panel" v-if="item.allow_config">
+                        <el-tab-pane class="plugin-panel" v-if="item.allow_config" lazy>
                             <template #label>
                                 <span style="padding-right: 5px">插件配置</span>
                                 <el-tag size="small" type="danger" effect="dark" v-if="pluginChanged">updated</el-tag>

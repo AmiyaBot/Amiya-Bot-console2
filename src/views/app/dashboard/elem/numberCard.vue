@@ -13,7 +13,7 @@ import { Options, Vue } from 'vue-class-component'
 @Options({
     props: {
         title: String,
-        value: String,
+        value: Number,
         color: String
     }
 })
