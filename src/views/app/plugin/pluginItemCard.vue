@@ -161,6 +161,13 @@ export default class PluginItemCard extends Vue {
         .plugin-info {
             display: flex;
             flex-direction: column;
+
+            .plugin-name-text {
+                max-width: 125px;
+                overflow: hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis !important;
+            }
         }
     }
 }

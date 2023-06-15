@@ -1,70 +1,73 @@
 <template>
-    <div class="plugin-detail-header">
-        <div class="plugin-detail-title">
-            <div class="plugin-icon detail">
-                <img :src="logo" alt="logo" v-if="logo">
-            </div>
-            <div>
-                <div class="plugin-name detail">
-                    <div style="color: var(--el-color-primary)">{{ item.name }}</div>
-                    <div class="official-icon" v-if="item.plugin_type === 'official'"></div>
+    <div class="plugin-detail-content">
+        <div class="plugin-detail-header">
+            <div class="plugin-detail-title">
+                <div class="plugin-icon detail">
+                    <img :src="logo" alt="logo" v-if="logo">
                 </div>
-                <div class="plugin-detail-info">
-                    <div>
-                        <el-icon>
-                            <Discount/>
-                        </el-icon>
-                        <div>版本：</div>
-                        <slot :item="item" name="version">{{ item.version }}</slot>
+                <div>
+                    <div class="plugin-name detail">
+                        <div style="color: var(--el-color-primary)">{{ item.name }}</div>
+                        <div class="official-icon" v-if="item.plugin_type === 'official'"></div>
                     </div>
-                    <div v-if="author">
-                        <el-icon>
-                            <User/>
-                        </el-icon>
-                        <div>作者：</div>
+                    <div class="plugin-detail-info">
                         <div>
-                            <slot :item="item" name="author">{{ author }}</slot>
+                            <el-icon>
+                                <Discount/>
+                            </el-icon>
+                            <div>版本：</div>
+                            <slot :item="item" name="version">{{ item.version }}</slot>
+                        </div>
+                        <div v-if="author">
+                            <el-icon>
+                                <User/>
+                            </el-icon>
+                            <div>作者：</div>
+                            <div>
+                                <slot :item="item" name="author">{{ author }}</slot>
+                            </div>
+                        </div>
+                        <div v-if="downloadCount !== undefined">
+                            <el-icon>
+                                <Download/>
+                            </el-icon>
+                            <div>累计下载次数：</div>
+                            <div>
+                                {{ downloadCount }}
+                            </div>
                         </div>
                     </div>
-                    <div v-if="downloadCount !== undefined">
-                        <el-icon>
-                            <Download/>
-                        </el-icon>
-                        <div>累计下载次数：</div>
-                        <div>
-                            {{ downloadCount }}
-                        </div>
-                    </div>
                 </div>
             </div>
+            <div style="display: flex">
+                <slot :item="item" name="button"></slot>
+            </div>
         </div>
-        <div style="display: flex">
-            <slot :item="item" name="button"></slot>
-        </div>
-    </div>
-    <div class="plugin-desc" ref="description">{{ item.description }}</div>
-    <div :style="{ height: docHeight() }" style="padding: 10px">
-        <el-card :body-style="{ height: 'calc(100% - 57px)', overflow: 'auto' }"
-                 style="height: 100%; transition: none">
-            <template #header>
-                <div style="display: flex;align-items: center;">
-                    <el-icon style="margin-right: 3px">
-                        <Collection/>
-                    </el-icon>
-                    <el-button link :type="docPage === 0 ? 'primary' : ''" @click="docPage = 0">插件文档</el-button>
-                    <template v-if="item.instruction">
-                        <el-divider direction="vertical"/>
+        <div class="plugin-desc" ref="description">{{ item.description }}</div>
+        <div class="plugin-doc-card" style="padding: 10px">
+            <el-card :body-style="{ height: 'calc(100% - 57px)', overflow: 'auto' }"
+                     style="height: 100%; transition: none">
+                <template #header>
+                    <div style="display: flex;align-items: center;">
                         <el-icon style="margin-right: 3px">
                             <Collection/>
                         </el-icon>
-                        <el-button link :type="docPage === 1 ? 'primary' : ''" @click="docPage = 1">使用说明</el-button>
-                    </template>
+                        <el-button link :type="docPage === 0 ? 'primary' : ''" @click="docPage = 0">插件文档</el-button>
+                        <template v-if="item.instruction">
+                            <el-divider direction="vertical"/>
+                            <el-icon style="margin-right: 3px">
+                                <Collection/>
+                            </el-icon>
+                            <el-button link :type="docPage === 1 ? 'primary' : ''" @click="docPage = 1">使用说明
+                            </el-button>
+                        </template>
+                    </div>
+                </template>
+                <div class="plugin-doc">
+                    <div class="markdown-body" v-html="pluginDoc()"></div>
                 </div>
-            </template>
-            <div class="plugin-doc">
-                <div class="markdown-body" v-html="pluginDoc()"></div>
-            </div>
-        </el-card>
+            </el-card>
+        </div>
     </div>
 </template>
 
@@ -122,13 +125,6 @@ export function pluginLogo (item: PluginItem) {
             return pluginLogo(this.item)
         }
     },
-    methods: {
-        docHeight () {
-            const descHeight = 'description' in this.$refs ? this.$refs.description.clientHeight : 0
-
-            return `calc(100% - 50px - ${descHeight}px)`
-        }
-    },
     mounted () {
         this.$nextTick(() => {
             this.$forceUpdate()
@@ -147,66 +143,70 @@ export default class PluginDetail extends Vue {
 </script>
 
 <style lang="scss">
-.plugin-detail-header {
+.plugin-detail-content {
+    height: 100%;
     display: flex;
-    align-items: center;
-    justify-content: space-between;
+    flex-direction: column;
 
-    .plugin-detail-title {
+    .plugin-detail-header {
+        height: 55px;
         display: flex;
         align-items: center;
-    }
-}
+        justify-content: space-between;
 
-.plugin-name {
-    display: flex;
-    align-items: center;
+        .plugin-detail-title {
+            display: flex;
+            align-items: center;
+        }
 
-    &.detail > div {
-        font-size: 20px;
-    }
+        .plugin-name {
+            display: flex;
+            align-items: center;
 
-    .plugin-name-text {
-        max-width: 125px;
-        overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis !important;
-    }
-}
+            &.detail > div {
+                font-size: 20px;
+            }
 
-.official-icon {
-    margin-left: 3px;
-    padding: 10px;
-    background: url(../../../assets/icon/official.svg) center / 20px no-repeat;
-}
+            .official-icon {
+                margin-left: 3px;
+                padding: 10px;
+                background: url(../../../assets/icon/official.svg) center / 20px no-repeat;
+            }
+        }
 
-.plugin-desc {
-    padding: 30px 0;
-    max-height: 100px;
-    overflow: auto;
-}
+        .plugin-detail-info {
+            display: flex;
+            flex-wrap: wrap;
+            color: #646464;
 
-.plugin-detail-info {
-    display: flex;
-    flex-wrap: wrap;
-    color: #646464;
+            & > div {
+                margin-top: 5px;
+                margin-right: 10px;
+                padding-right: 10px;
+                border-right: 1px solid var(--el-border-color);
+                display: flex;
+                align-items: center;
 
-    & > div {
-        margin-top: 5px;
-        margin-right: 10px;
-        padding-right: 10px;
-        border-right: 1px solid var(--el-border-color);
-        display: flex;
-        align-items: center;
+                .el-icon {
+                    font-size: 14px;
+                    margin-right: 3px;
+                }
+            }
 
-        .el-icon {
-            font-size: 14px;
-            margin-right: 3px;
+            & > div:last-child {
+                border-right: none;
+            }
         }
     }
 
-    & > div:last-child {
-        border-right: none;
+    .plugin-desc {
+        height: 100px;
+        padding: 30px 0;
+        overflow: auto;
+    }
+
+    .plugin-doc-card {
+        height: calc(100% - 55px - 100px);
     }
 }
 
