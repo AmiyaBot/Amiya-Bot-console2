@@ -39,7 +39,8 @@ export default class Notice {
                 {
                     type: type,
                     confirmButtonText: '好的',
-                    callback: callback
+                    callback: callback,
+                    dangerouslyUseHTMLString: true
                 }
             )
     }
