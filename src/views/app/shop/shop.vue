@@ -384,9 +384,13 @@ export default class ShopCustom extends Vue {
         }
     }
 
-    public uploaded (response: any) {
-        this.form.author = response.author || ''
-        this.uploadedPlugin = response
+    public async uploaded (response: any) {
+        if (response.status === 'ok') {
+            this.form.author = response.author || ''
+            this.uploadedPlugin = response
+        } else {
+            await Notice.alert('异常信息：<br>' + response.message.replace(/\n/g, '<br>'), '插件解析失败', () => null, 'error')
+        }
     }
 
     public async beforeUpload (file: any) {
@@ -400,7 +404,7 @@ export default class ShopCustom extends Vue {
 
     public async uploadFail () {
         this.uploadedPlugin = {}
-        await Notice.alert('请通过官方项目测试你的插件是否能正常加载，或打包的时候是否缺少相关第三方依赖。', '插件解析失败', () => null, 'error')
+        await Notice.alert('插件服务器异常。', '插件上传失败', () => null, 'error')
     }
 
     public async forgotKey () {
