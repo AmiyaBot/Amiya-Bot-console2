@@ -11,8 +11,12 @@
                     </el-tag>
                     <el-tag v-else type="warning">群聊</el-tag>
                 </template>
-                <el-tag v-if="field === 'is_main'" :type="value ? 'success' : 'info'">{{ value ? '是' : '否' }}</el-tag>
-                <el-tag v-if="field === 'is_start'" :type="value ? 'success' : 'info'">{{ value ? '是' : '否' }}</el-tag>
+                <el-tag v-if="field === 'is_main'" :type="value ? 'success' : 'info'">
+                    {{ value ? '是' : '否' }}
+                </el-tag>
+                <el-tag v-if="field === 'is_start'" :type="value ? 'success' : 'info'">
+                    {{ value ? '是' : '否' }}
+                </el-tag>
             </template>
             <template #operations="{ row }">
                 <el-link :underline="false" type="primary" @click="editBot(row)">编辑</el-link>
@@ -139,6 +143,7 @@ export default class Instance extends Vue {
 
     public adapterType = {
         tencent: 'QQ-Bot',
+        kook: 'KOOK',
         mirai_api_http: 'Mirai-api-http',
         cq_http: 'CQ-Http'
     }
