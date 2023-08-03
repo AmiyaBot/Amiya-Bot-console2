@@ -61,7 +61,7 @@ export async function setPluginConfig (data: StringDict) {
 
 export async function getPluginShop () {
     return await cos.get({
-        url: `/${official}/plugins.json`
+        url: `/${official}/plugins.json?time=${new Date().getTime()}`
     })
 }
 

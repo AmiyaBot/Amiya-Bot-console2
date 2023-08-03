@@ -37,7 +37,7 @@
                                              v-if="form[item.field][index] !== undefined"
                                              style="width: calc(100% - 51px)">
                                 <template #append>
-                                    <el-button @click="delValue(item, index)" :icon="delIcon"/>
+                                    <el-button @click="delValue(item, Number(index))" :icon="delIcon"/>
                                 </template>
                             </form-field-type>
                             <el-button v-if="index === form[item.field].length - 1" @click="addValue(item)"
@@ -115,7 +115,12 @@ import FormFieldType from '@/components/formGenerator/formFieldType.vue'
     name: 'formFieldGenerator',
     components: { QuestionFilled, FormFieldType },
     props: {
-        form: Object,
+        form: {
+            type: Object,
+            default: () => {
+                return {}
+            }
+        },
         items: Array
     },
     data () {
