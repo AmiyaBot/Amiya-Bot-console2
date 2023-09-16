@@ -1,6 +1,9 @@
 import { StringDict } from '@/lib/common'
 
-type SchemaType = 'array' | 'boolean' | 'integer' | 'null' | 'number' | 'object' | 'string'
+export type SchemaType = 'array' | 'boolean' | 'integer' | 'null' | 'number' | 'object' | 'string'
+export type DateTimeType = 'date' | 'time' | 'datetime' | 'date-range' | 'time-range' | 'datetime-range'
+
+export const dateTimeTypeName: Array<DateTimeType> = ['date', 'time', 'datetime', 'date-range', 'time-range', 'datetime-range']
 
 export interface Schema {
     type: SchemaType
@@ -10,6 +13,7 @@ export interface Schema {
     default: any
     description: string
     enum: Array<string>
+    format?: DateTimeType
 }
 
 export interface SchemaItem extends Schema {
