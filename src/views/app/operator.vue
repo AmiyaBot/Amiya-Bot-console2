@@ -14,7 +14,7 @@
             </template>
         </v-table>
 
-        <v-form-dialog title="编辑用户" :form="form" ref="dialog">
+        <v-form-dialog title="编辑干员" :form="form" ref="dialog">
             <el-form-item label="干员代号">
                 <el-input v-model="form.name" disabled/>
             </el-form-item>
