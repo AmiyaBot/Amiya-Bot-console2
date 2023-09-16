@@ -1,5 +1,5 @@
 <template>
-    <div style="width: 100%">
+    <div class="form-field-type">
         <!-- 输入框 -->
         <template v-if="type === 'input'">
             <el-input v-model="form[bind]" :size="size"
@@ -30,6 +30,24 @@
             </el-select>
         </template>
 
+        <!-- 日期选择器（包含"日期"、"日期时间"和两者的范围选择） -->
+        <el-date-picker v-if="type.startsWith('date')" placement="bottom-start"
+                        v-model="form[bind]"
+                        :type="type.replace('-', '')"
+                        :placeholder="`请选择${itemLabel(item)}`"
+                        range-separator="至"
+                        start-placeholder="开始日期"
+                        end-placeholder="结束日期"/>
+
+        <!-- 时间选择器 -->
+        <el-time-picker v-if="type.startsWith('time')" placement="bottom-start"
+                        v-model="form[bind]"
+                        :is-range="type.endsWith('range')"
+                        :placeholder="`请选择${itemLabel(item)}`"
+                        range-separator="至"
+                        start-placeholder="开始时间"
+                        end-placeholder="结束时间"/>
+
         <!-- 切换按钮 -->
         <template v-if="type === 'boolean'">
             <el-switch v-model="form[bind]" :size="size"/>
@@ -58,10 +76,19 @@ export default class FormFieldType extends Vue {
 }
 </script>
 
-<style scoped lang="scss">
-
-</style>
 <style lang="scss">
+.form-field-type {
+    width: 100%;
+
+    & > div.el-date-editor {
+        width: 100% !important;
+
+        .el-input__wrapper {
+            width: 100%;
+        }
+    }
+}
+
 .el-input-number {
     width: 100%;
 

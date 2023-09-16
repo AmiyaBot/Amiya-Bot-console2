@@ -1,12 +1,13 @@
 import Common, { StringDict } from '@/lib/common'
-import { JsonSchema, SchemaItem } from '@/components/formGenerator/formJsonSchema'
+import { JsonSchema, SchemaItem, DateTimeType, dateTimeTypeName } from '@/components/formGenerator/formJsonSchema'
 
-type FormType = 'input' | 'number' | 'select' | 'boolean' | 'values' | 'table' | 'unsupported' | ''
+type FormType = DateTimeType | 'input' | 'number' | 'select' | 'boolean' | 'values' | 'table' | 'unsupported' | ''
+type ValueType = string | number | boolean | Array<string | number | boolean>
 
 export class FormItem {
     type: FormType = 'input'
     field: string
-    value: any
+    value: ValueType = ''
     title = ''
     description = ''
     required = false
@@ -95,7 +96,7 @@ class BuildFromSchema {
         group.description = desc
 
         for (const field in schema.properties) {
-            const schemaItem = schema.properties[field]
+            const schemaItem: SchemaItem = schema.properties[field]
             const item = new FormItem(field)
 
             item.title = schemaItem.title
@@ -107,6 +108,9 @@ class BuildFromSchema {
                 this.buildSelector(item, schemaItem)
             } else {
                 switch (schemaItem.type) {
+                    case 'object':
+                        group.append(this.build(schemaItem, item.title, item.description, field))
+                        continue
                     case 'array':
                         item.type = 'values'
                         item.subType = 'input'
@@ -137,6 +141,15 @@ class BuildFromSchema {
                             item.value = false
                         }
                         break
+                    case 'string':
+                        if (schemaItem.format && dateTimeTypeName.indexOf(schemaItem.format) >= 0) {
+                            item.type = schemaItem.format
+
+                            if (item.type.endsWith('range') && !Array.isArray(item.value)) {
+                                item.value = []
+                            }
+                        }
+                        break
                     case 'number':
                     case 'integer':
                         item.type = 'number'
@@ -147,9 +160,6 @@ class BuildFromSchema {
                             item.value = 0
                         }
                         break
-                    case 'object':
-                        group.append(this.build(schemaItem, item.title, item.description, field))
-                        continue
                     case 'null':
                         continue
                 }
