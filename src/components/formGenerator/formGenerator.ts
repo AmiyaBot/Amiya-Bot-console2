@@ -117,9 +117,10 @@ class BuildFromSchema {
 
                         if (schemaItem.items) {
                             switch (schemaItem.items.type) {
+                                case 'number':
                                 case 'integer':
                                     item.subType = 'number'
-                                    item.factory = Number
+                                    item.factory = schemaItem.items.type === 'integer' ? parseInt : Number
                                     item.minimum = schemaItem.items.minimum || -Infinity
                                     item.maximum = schemaItem.items.maximum || Infinity
                                     break
@@ -153,9 +154,10 @@ class BuildFromSchema {
                     case 'number':
                     case 'integer':
                         item.type = 'number'
-                        item.factory = Number
+                        item.factory = schemaItem.type === 'integer' ? parseInt : Number
                         item.minimum = schemaItem.minimum || -Infinity
                         item.maximum = schemaItem.maximum || Infinity
+
                         if (!item.value) {
                             item.value = 0
                         }

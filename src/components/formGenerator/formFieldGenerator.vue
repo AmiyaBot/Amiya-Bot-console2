@@ -30,12 +30,11 @@
             <template v-else-if="item.type === 'values'">
                 <div v-if="form[item.field] && form[item.field].length" style="width: 100%">
                     <template v-for="(n, index) in form[item.field]" :key="index">
-                        <div style="width: 100%; display: flex;">
+                        <div class="array-input">
                             <form-field-type :form="form[item.field]" :bind="index.toString()" :item="item"
                                              :item-label="itemLabel"
                                              :class="item.field + index"
-                                             v-if="form[item.field][index] !== undefined"
-                                             style="width: calc(100% - 51px)">
+                                             v-if="form[item.field][index] !== undefined">
                                 <template #append>
                                     <el-button @click="delValue(item, Number(index))" :icon="delIcon"/>
                                 </template>
@@ -145,7 +144,16 @@ export default class FormFieldGenerator extends Vue {
     }
 
     public addValue (item: FormItem) {
-        this.form[item.field].push(item.factory(''))
+        if (!Array.isArray(this.form[item.field])) {
+            this.form[item.field] = []
+        }
+        let initValue = item.factory('')
+
+        if (isNaN(initValue)) {
+            initValue = 0
+        }
+
+        this.form[item.field].push(initValue)
         this.$nextTick(() => {
             const target = item.field + (this.form[item.field].length - 1)
 
@@ -187,6 +195,19 @@ export default class FormFieldGenerator extends Vue {
 
     .el-icon {
         color: var(--el-text-color-regular) !important;
+    }
+}
+
+.array-input {
+    width: 100%;
+    display: flex;
+
+    & > div {
+        width: calc(100% - 51px);
+    }
+
+    &:not(:first-child) {
+        margin-top: 3px;
     }
 }
 </style>
