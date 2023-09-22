@@ -35,6 +35,7 @@
                         v-model="form[bind]"
                         :type="type.replace('-', '')"
                         :placeholder="`请选择${itemLabel(item)}`"
+                        :value-format="format[type]"
                         range-separator="至"
                         start-placeholder="开始日期"
                         end-placeholder="结束日期"/>
@@ -44,6 +45,7 @@
                         v-model="form[bind]"
                         :is-range="type.endsWith('range')"
                         :placeholder="`请选择${itemLabel(item)}`"
+                        :value-format="format[type]"
                         range-separator="至"
                         start-placeholder="开始时间"
                         end-placeholder="结束时间"/>
@@ -69,6 +71,18 @@ import { Options, Vue } from 'vue-class-component'
     computed: {
         type () {
             return this.item.subType || this.item.type
+        }
+    },
+    data () {
+        return {
+            format: {
+                date: 'YYYY-MM-DD',
+                time: 'HH:mm:ss',
+                datetime: 'YYYY-MM-DD HH:mm:ss',
+                'date-range': 'YYYY-MM-DD',
+                'time-range': 'HH:mm:ss',
+                'datetime-range': 'YYYY-MM-DD HH:mm:ss'
+            }
         }
     }
 })
