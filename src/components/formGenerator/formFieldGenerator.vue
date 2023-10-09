@@ -174,6 +174,10 @@ export default class FormFieldGenerator extends Vue {
             newRow[n.field] = n.factory('')
         }
 
+        if (!Array.isArray(this.form[item.field])) {
+            this.form[item.field] = []
+        }
+
         this.form[item.field].push(newRow)
     }
 
