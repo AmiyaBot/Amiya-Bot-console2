@@ -9,7 +9,7 @@
                     <el-tag v-if="row.adapter === 'tencent'" :type="value ? '' : 'success'">
                         {{ value ? '私域' : '公域' }}
                     </el-tag>
-                    <el-tag v-else type="warning">群聊</el-tag>
+                    <el-tag v-else type="warning">其他</el-tag>
                 </template>
                 <el-tag v-if="field === 'is_main'" :type="value ? 'success' : 'info'">
                     {{ value ? '是' : '否' }}
@@ -56,28 +56,16 @@
                     </el-radio-group>
                 </el-form-item>
             </template>
-            <template v-if="form.adapter === 'mirai_api_http'">
-                <el-divider content-position="left">Mirai-api-http 配置</el-divider>
+            <template v-if="serverAdapters.indexOf(form.adapter) >= 0">
+                <el-divider content-position="left">服务配置</el-divider>
                 <el-form-item label="Host地址">
-                    <el-input v-model="form.mah_host" placeholder="MAH服务的地址，本地默认为 127.0.0.1"/>
+                    <el-input v-model="form.host" placeholder="服务的地址，本地默认为 127.0.0.1"/>
                 </el-form-item>
                 <el-form-item label="HTTP端口">
-                    <el-input v-model="form.mah_http_port" placeholder="MAH服务的HTTP端口"/>
+                    <el-input v-model="form.http_port" placeholder="服务的 HTTP 端口"/>
                 </el-form-item>
                 <el-form-item label="WS端口">
-                    <el-input v-model="form.mah_ws_port" placeholder="MAH服务的Websocket端口"/>
-                </el-form-item>
-            </template>
-            <template v-if="form.adapter === 'cq_http'">
-                <el-divider content-position="left">CQ-Http 配置</el-divider>
-                <el-form-item label="Host地址">
-                    <el-input v-model="form.cq_host" placeholder="CQHTTP服务的地址，本地默认为 127.0.0.1"/>
-                </el-form-item>
-                <el-form-item label="HTTP端口">
-                    <el-input v-model="form.cq_http_port" placeholder="CQHTTP服务的HTTP端口"/>
-                </el-form-item>
-                <el-form-item label="WS端口">
-                    <el-input v-model="form.cq_ws_port" placeholder="CQHTTP服务的Websocket端口"/>
+                    <el-input v-model="form.ws_port" placeholder="服务的 Websocket 端口"/>
                 </el-form-item>
             </template>
             <template #footer>
@@ -142,11 +130,22 @@ export default class Instance extends Vue {
     dialog!: VFormDialog
 
     public adapterType = {
-        tencent: 'QQ-Bot',
-        kook: 'KOOK',
-        mirai_api_http: 'Mirai-api-http',
-        cq_http: 'CQ-Http'
+        tencent: 'QQ频道机器人',
+        kook: 'KOOK机器人',
+        mirai_api_http: 'Mirai-api-http QQ群机器人',
+        cq_http: 'CQ-Http QQ群机器人',
+        onebot11: 'OneBot 11 机器人',
+        onebot12: 'OneBot 12 机器人',
+        com_wechat: 'ComWeChat 微信机器人'
     }
+
+    public serverAdapters = [
+        'mirai_api_http',
+        'cq_http',
+        'onebot11',
+        'onebot12',
+        'com_wechat'
+    ]
 
     public form = {}
     public formType = 'add'
@@ -167,12 +166,9 @@ export default class Instance extends Vue {
             adapter: 'tencent',
             is_main: 0,
             is_start: 1,
-            mah_host: '',
-            mah_http_port: 0,
-            mah_ws_port: 0,
-            cq_host: '',
-            cq_http_port: 0,
-            cq_ws_port: 0
+            host: '',
+            http_port: 0,
+            ws_port: 0
         }
         this.formType = 'add'
         this.dialog.show()
