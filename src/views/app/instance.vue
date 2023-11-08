@@ -136,7 +136,8 @@ export default class Instance extends Vue {
         cq_http: 'CQ-Http QQ群机器人',
         onebot11: 'OneBot 11 机器人',
         onebot12: 'OneBot 12 机器人',
-        com_wechat: 'ComWeChat 微信机器人'
+        com_wechat: 'ComWeChat 微信机器人',
+        websocket: '反向 Websocket'
     }
 
     public serverAdapters = [
@@ -144,7 +145,8 @@ export default class Instance extends Vue {
         'cq_http',
         'onebot11',
         'onebot12',
-        'com_wechat'
+        'com_wechat',
+        'websocket'
     ]
 
     public form = {}
