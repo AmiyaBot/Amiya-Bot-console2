@@ -9,8 +9,8 @@
                 <el-input v-model="appid"/>
             </el-form-item>
             <el-form-item>
-                <el-button type="primary" @click="connect">连接</el-button>
-                <el-button @click="clean">清除</el-button>
+                <el-button v-if="!isConnected" type="success" @click="connect">连接</el-button>
+                <el-button v-else type="danger" @click="clean">断开连接</el-button>
                 <span>
                     <i class="state" :class="{ ok: isConnected }"></i>
                     <template v-if="isConnected">已连接</template>
@@ -55,6 +55,27 @@
 import { Options, Vue } from 'vue-class-component'
 import Notice from '@/lib/message'
 
+async function toBase64 (url: string) {
+    return new Promise(resolve => {
+        const img = new Image()
+
+        img.src = url
+        img.onload = function () {
+            const canvas = document.createElement('canvas')
+            canvas.width = img.width
+            canvas.height = img.height
+
+            const ctx = canvas.getContext('2d')
+            ctx?.drawImage(img, 0, 0, img.width, img.height)
+
+            const ext = img.src.substring(img.src.lastIndexOf('.') + 1).toLowerCase()
+            const dataURL = canvas.toDataURL('image/' + ext)
+
+            resolve(dataURL)
+        }
+    })
+}
+
 @Options({
     methods: {
         connect () {
@@ -71,9 +92,7 @@ import Notice from '@/lib/message'
                     Notice.toast('连接成功')
                 }
                 client.onclose = () => {
-                    this.client = null
                     this.isConnected = false
-
                     this.clean()
 
                     Notice.toast('连接失败', 'error')
@@ -82,23 +101,39 @@ import Notice from '@/lib/message'
                     this.$emit('recv', JSON.parse(evt.data))
                 }
                 client.onerror = evt => {
+                    this.clean()
                     console.log('websocket closed.', evt)
                 }
             }
         },
-        send (message: string) {
+        async send (message: string, images: string[] = []) {
+            const imgData = []
+
+            for (const item of images) {
+                imgData.push(await toBase64(item))
+            }
+
             this.client.send(JSON.stringify({
                 event: 'message',
+                event_id: new Date().getTime().toString(),
                 event_data: {
                     ...this.form,
-                    message
+                    message: message,
+                    images: imgData
                 }
             }))
         },
         sendEvent () {
+            let eventData = this.event.event_data
+            try {
+                eventData = JSON.parse(eventData)
+            } catch (e) {
+
+            }
             this.client.send(JSON.stringify({
                 event: this.event.event_name,
-                event_data: JSON.parse(this.event.event_data)
+                event_id: new Date().getTime().toString(),
+                event_data: eventData
             }))
         },
         clean () {
@@ -107,13 +142,14 @@ import Notice from '@/lib/message'
 
             if (this.client) {
                 this.client.close()
+                this.client = null
             }
         }
     },
     data () {
         return {
-            host: localStorage.getItem('test-host') || '',
-            appid: localStorage.getItem('test-appid') || '',
+            host: localStorage.getItem('test-host') || '127.0.0.1:32001',
+            appid: localStorage.getItem('test-appid') || 'test',
             client: null,
             isConnected: false,
             form: {
