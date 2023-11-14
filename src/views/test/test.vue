@@ -105,10 +105,7 @@ import TestConfig from '@/views/test/testConfig.vue'
             for (const item of data.event_data) {
                 switch (item.type) {
                     case 'text':
-                        if (item.data === '\n') {
-                            item.data = '<div style="margin: 5px 0"></div>'
-                        }
-                        content.push(item.data)
+                        content.push(item.data.replace(/\n/g, '<div style="margin: 5px 0"></div>'))
                         break
                     case 'face':
                         content.push(`[face${item.data}]`)
