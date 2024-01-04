@@ -210,10 +210,6 @@ interface Authors {
     [key: string]: Array<PluginItem>
 }
 
-interface AuthorsSort {
-    [key: string]: number
-}
-
 interface BatchInstallProcess {
     percentage: number
     status: { [key: string]: string }
@@ -331,7 +327,7 @@ export default class ShopCustom extends Vue {
                     installedPlugin[item.plugin_id] = item.version
                 }
             }
-            const authorsSort: AuthorsSort = {}
+
             const pluginsList: Array<PluginItem> = shop.data.filter((item: PluginItem) => {
                 item.installed = item.plugin_id in installedPlugin
                 item.upgrade = installedPlugin[item.plugin_id] ? item.version > installedPlugin[item.plugin_id] : false
@@ -343,35 +339,34 @@ export default class ShopCustom extends Vue {
                 if (item.higher) {
                     item.curr_version = installedPlugin[item.plugin_id] + ' << '
                 }
-
-                const author = item.plugin_info.author
-                const lastUpdate = new Date(item.upload_time).getTime()
-
-                if (author in authorsSort) {
-                    if (lastUpdate > authorsSort[author]) {
-                        authorsSort[author] = lastUpdate
-                    }
-                } else {
-                    authorsSort[author] = lastUpdate
-                }
-
                 return true
             })
 
-            const authors: Authors = {}
-            const sorted = Object.keys(authorsSort).sort((a, b) => {
-                return authorsSort[b] - authorsSort[a]
-            })
-
-            for (const name of sorted) {
-                authors[name] = []
-            }
+            const plugins: Authors = {}
             for (const item of pluginsList) {
-                authors[item.plugin_info.author].push(item)
+                if (!(item.plugin_info.author in plugins)) {
+                    plugins[item.plugin_info.author] = []
+                }
+                plugins[item.plugin_info.author].push(item)
+            }
+            for (const key in plugins) {
+                plugins[key].sort((a, b) => new Date(b.upload_time).getTime() - new Date(a.upload_time).getTime())
             }
 
-            this.pluginAuthors = authors
-            this.pluginShowList = Common.deepCopy(authors)
+            const pluginArray = Object.entries(plugins).map(([name, arr]) => ({
+                name,
+                arr,
+                maxTime: new Date(arr[0].upload_time).getTime()
+            }))
+            pluginArray.sort((a, b) => b.maxTime - a.maxTime)
+
+            const sortedPlugins: Authors = {}
+            for (const item of pluginArray) {
+                sortedPlugins[item.name] = item.arr
+            }
+
+            this.pluginAuthors = sortedPlugins
+            this.pluginShowList = Common.deepCopy(sortedPlugins)
         }
     }
 

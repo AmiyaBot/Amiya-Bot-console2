@@ -27,13 +27,13 @@
         </v-table>
 
         <v-form-dialog title="编辑实例" :form="form" ref="dialog">
-            <el-form-item label="APP ID">
-                <el-input v-model="form.appid" placeholder="实例的 app id"/>
+            <el-form-item label="AppID">
+                <el-input v-model="form.appid" placeholder="机器人ID"/>
             </el-form-item>
-            <el-form-item label="TOKEN">
-                <el-input v-model="form.token" placeholder="实例的 token"/>
+            <el-form-item label="Token">
+                <el-input v-model="form.token" placeholder="机器人令牌"/>
             </el-form-item>
-            <el-form-item label="适配器类型">
+            <el-form-item label="适配器">
                 <el-select v-model="form.adapter">
                     <el-option :label="name" :value="item" v-for="(name, item) in adapterType" :key="item"/>
                 </el-select>
@@ -47,13 +47,25 @@
             <el-form-item label="控制台群组ID" v-if="form.is_main">
                 <el-input v-model="form.console_channel" placeholder="控制实例的群组"/>
             </el-form-item>
-            <template v-if="form.adapter === 'tencent'">
-                <el-divider content-position="left">QQ-Bot 配置</el-divider>
+            <template v-if="form.adapter === 'tencent' || form.adapter === 'qq_guild'">
+                <el-divider content-position="left">频道配置</el-divider>
                 <el-form-item label="属性">
                     <el-radio-group v-model="form.private">
                         <el-radio :label="0">公域</el-radio>
                         <el-radio :label="1">私域</el-radio>
                     </el-radio-group>
+                </el-form-item>
+            </template>
+            <template v-if="form.adapter === 'qq_group'">
+                <el-divider content-position="left">资源服务配置</el-divider>
+                <el-form-item label="AppSecret">
+                    <el-input v-model="form.client_secret" placeholder="机器人密钥"/>
+                </el-form-item>
+                <el-form-item label="Host地址">
+                    <el-input v-model="form.host" placeholder="资源服务的地址，默认为 0.0.0.0"/>
+                </el-form-item>
+                <el-form-item label="HTTP端口">
+                    <el-input v-model="form.http_port" placeholder="资源服务的 HTTP 端口，默认为 8086"/>
                 </el-form-item>
             </template>
             <template v-if="serverAdapters.indexOf(form.adapter) >= 0">
@@ -117,7 +129,7 @@ import VFormDialog from '@/components/v-form-dialog.vue'
             is_main: '可控实例',
             console_channel: '控制台群组ID',
             adapter: {
-                title: '适配器类型',
+                title: '适配器',
                 format: (row: any, value: any) => {
                     return this.adapterType[value]
                 }
@@ -130,7 +142,8 @@ export default class Instance extends Vue {
     dialog!: VFormDialog
 
     public adapterType = {
-        tencent: 'QQ频道机器人',
+        qq_guild: 'QQ频道机器人（官方）',
+        qq_group: 'QQ群机器人（官方）',
         kook: 'KOOK机器人',
         mirai_api_http: 'Mirai-api-http QQ群机器人',
         cq_http: 'CQ-Http QQ群机器人',
@@ -165,12 +178,13 @@ export default class Instance extends Vue {
             appid: '',
             token: '',
             private: 0,
-            adapter: 'tencent',
+            adapter: 'qq_guild',
             is_main: 0,
             is_start: 1,
             host: '',
             http_port: 0,
-            ws_port: 0
+            ws_port: 0,
+            client_secret: ''
         }
         this.formType = 'add'
         this.dialog.show()
@@ -217,19 +231,25 @@ export default class Instance extends Vue {
 </script>
 
 <style lang="scss">
-.instance-manage .status {
-    &:before {
-        content: '';
-        display: inline-block;
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        background: #67c23a;
-        margin-right: 5px;
+.instance-manage {
+    .status {
+        &:before {
+            content: '';
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #67c23a;
+            margin-right: 5px;
+        }
+
+        &.status-0:before {
+            background: #9e9e9e;
+        }
     }
 
-    &.status-0:before {
-        background: #9e9e9e;
+    .el-select {
+        width: 100%;
     }
 }
 </style>
