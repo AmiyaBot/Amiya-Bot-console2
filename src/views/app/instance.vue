@@ -124,16 +124,16 @@ import VFormDialog from '@/components/v-form-dialog.vue'
                     return `<span class="status status-${value.toString()}">${value ? '在线' : '离线'}</span>`
                 }
             },
-            private: '属性',
-            is_start: '随启动开启',
-            is_main: '可控实例',
-            console_channel: '控制台群组ID',
             adapter: {
                 title: '适配器',
                 format: (row: any, value: any) => {
                     return this.adapterType[value]
                 }
-            }
+            },
+            private: '属性',
+            is_start: '随启动开启',
+            is_main: '可控实例',
+            console_channel: '控制台群组ID'
         })
     }
 })
