@@ -56,7 +56,7 @@
                     </el-radio-group>
                 </el-form-item>
             </template>
-            <template v-if="form.adapter === 'qq_group'">
+            <template v-if="form.adapter === 'qq_group' || form.adapter === 'qq_global'">
                 <el-divider content-position="left">资源服务配置</el-divider>
                 <el-form-item label="AppSecret">
                     <el-input v-model="form.client_secret" placeholder="机器人密钥"/>
@@ -144,6 +144,7 @@ export default class Instance extends Vue {
     public adapterType = {
         qq_guild: 'QQ频道机器人（官方）',
         qq_group: 'QQ群机器人（官方）',
+        qq_global: 'QQ全域机器人（官方）',
         kook: 'KOOK机器人',
         mirai_api_http: 'Mirai-api-http QQ群机器人',
         cq_http: 'CQ-Http QQ群机器人',
