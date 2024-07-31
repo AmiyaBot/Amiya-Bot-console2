@@ -47,25 +47,32 @@
             <el-form-item label="控制台群组ID" v-if="form.is_main">
                 <el-input v-model="form.console_channel" placeholder="控制实例的群组"/>
             </el-form-item>
-            <template v-if="form.adapter === 'tencent' || form.adapter === 'qq_guild'">
-                <el-divider content-position="left">频道配置</el-divider>
-                <el-form-item label="属性">
-                    <el-radio-group v-model="form.private">
-                        <el-radio :label="0">公域</el-radio>
-                        <el-radio :label="1">私域</el-radio>
-                    </el-radio-group>
+            <template v-if="txAdapters.indexOf(form.adapter) >= 0">
+                <el-divider content-position="left">配置</el-divider>
+                <template v-if="form.adapter === 'qq_guild'">
+                    <el-form-item label="属性">
+                        <el-radio-group v-model="form.private">
+                            <el-radio :label="0">公域</el-radio>
+                            <el-radio :label="1">私域</el-radio>
+                        </el-radio-group>
+                    </el-form-item>
+                </template>
+                <template v-else>
+                    <el-form-item label="AppSecret">
+                        <el-input v-model="form.client_secret" placeholder="机器人密钥"/>
+                    </el-form-item>
+                    <el-form-item label="资源服务地址">
+                        <el-input v-model="form.host" placeholder="资源服务的地址，默认为 0.0.0.0"/>
+                    </el-form-item>
+                    <el-form-item label="资源服务端口">
+                        <el-input v-model="form.http_port" placeholder="资源服务的 HTTP 端口，默认为 8086"/>
+                    </el-form-item>
+                </template>
+                <el-form-item label="当前分片下标">
+                    <el-input-number v-model="form.shard_index"/>
                 </el-form-item>
-            </template>
-            <template v-if="form.adapter === 'qq_group' || form.adapter === 'qq_global'">
-                <el-divider content-position="left">资源服务配置</el-divider>
-                <el-form-item label="AppSecret">
-                    <el-input v-model="form.client_secret" placeholder="机器人密钥"/>
-                </el-form-item>
-                <el-form-item label="Host地址">
-                    <el-input v-model="form.host" placeholder="资源服务的地址，默认为 0.0.0.0"/>
-                </el-form-item>
-                <el-form-item label="HTTP端口">
-                    <el-input v-model="form.http_port" placeholder="资源服务的 HTTP 端口，默认为 8086"/>
+                <el-form-item label="分片总数">
+                    <el-input-number v-model="form.shards"/>
                 </el-form-item>
             </template>
             <template v-if="serverAdapters.indexOf(form.adapter) >= 0">
@@ -90,7 +97,7 @@
 
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component'
-import { getInstanceList, submitInstance, runInstance, closeInstance, deleteInstance } from '@/request/instance'
+import { closeInstance, deleteInstance, getInstanceList, runInstance, submitInstance } from '@/request/instance'
 import Common, { StringDict } from '@/lib/common'
 
 import VTable from '@/components/table/v-table.vue'
@@ -154,6 +161,12 @@ export default class Instance extends Vue {
         websocket: '反向 Websocket'
     }
 
+    public txAdapters = [
+        'qq_guild',
+        'qq_group',
+        'qq_global'
+    ]
+
     public serverAdapters = [
         'mirai_api_http',
         'cq_http',
@@ -173,8 +186,8 @@ export default class Instance extends Vue {
         }
     }
 
-    public addBot () {
-        this.form = {
+    public newForm () {
+        return {
             id: 0,
             appid: '',
             token: '',
@@ -185,14 +198,23 @@ export default class Instance extends Vue {
             host: '',
             http_port: 0,
             ws_port: 0,
-            client_secret: ''
+            client_secret: '',
+            shard_index: 0,
+            shards: 1
         }
+    }
+
+    public addBot () {
+        this.form = this.newForm()
         this.formType = 'add'
         this.dialog.show()
     }
 
     public editBot (item: StringDict) {
-        this.form = Common.deepCopy(item)
+        this.form = {
+            ...this.newForm(),
+            ...Common.deepCopy(item)
+        }
         this.formType = 'edit'
         this.dialog.show()
     }
