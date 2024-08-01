@@ -27,6 +27,19 @@
         </div>
         <div class="app-con">
             <div>
+                <el-alert type="error" v-if="notice">
+                    <template #title>
+                        <div style="display: flex;align-items: center;">
+                            <el-icon>
+                                <BellFilled/>
+                            </el-icon>
+                            <span style="padding-left: 5px">公告</span>
+                        </div>
+                    </template>
+                    <div v-html="notice"></div>
+                </el-alert>
+            </div>
+            <div>
                 <div style="font-size: 20px;display: flex;">
                     <el-icon class="icon">
                         <component :is="navIcon[name]"></component>
@@ -94,15 +107,18 @@
 
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component'
-import { Setting } from '@element-plus/icons-vue'
-import MainNav, { navName, navIcon } from '@/views/main/mainNav.vue'
+import { BellFilled, Setting } from '@element-plus/icons-vue'
+import MainNav, { navIcon, navName } from '@/views/main/mainNav.vue'
 import Common from '@/lib/common'
 import HttpRequest from '@/lib/http'
+
+import { getNotice } from '@/request/remote/cosServer'
 
 @Options({
     components: {
         MainNav,
-        Setting
+        Setting,
+        BellFilled
     },
     methods: {
         originHost () {
@@ -116,12 +132,15 @@ import HttpRequest from '@/lib/http'
     },
     mounted () {
         this.ready = !!this.settingForm.host
+        this.getNotice()
     }
 })
 export default class Main extends Vue {
     public name = ''
     public navName = navName
     public navIcon = navIcon
+
+    private notice = ''
 
     private ready = false
     private setting = false
@@ -163,6 +182,13 @@ export default class Main extends Vue {
             Common.setData('authKey', this.settingForm.authKey)
 
             this.ready = true
+        }
+    }
+
+    public async getNotice () {
+        const res = await getNotice()
+        if (res) {
+            this.notice = res
         }
     }
 }

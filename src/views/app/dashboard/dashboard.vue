@@ -1,18 +1,5 @@
 <template>
     <div>
-        <div style="padding-bottom: 15px" ref="noticeArea" v-if="notice">
-            <el-alert type="warning">
-                <template #title>
-                    <div style="display: flex;align-items: center;">
-                        <el-icon>
-                            <BellFilled/>
-                        </el-icon>
-                        <span style="padding-left: 5px">公告</span>
-                    </div>
-                </template>
-                <div v-html="notice"></div>
-            </el-alert>
-        </div>
         <community/>
         <el-card class="content-area" :class="{ 'no-notice': !notice }">
             <el-tabs v-model="page">
@@ -39,22 +26,18 @@
 
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component'
-import { BellFilled } from '@element-plus/icons-vue'
 
 import Logger from '@/views/app/dashboard/elem/logger.vue'
 import Community from '@/views/app/dashboard/elem/community.vue'
 import MessageAnalysis from '@/views/app/dashboard/elem/messageAnalysis.vue'
 import FuncUsage from '@/views/app/dashboard/elem/funcUsage.vue'
 
-import { getNotice } from '@/request/remote/cosServer'
-
 @Options({
     components: {
         Logger,
         Community,
         MessageAnalysis,
-        FuncUsage,
-        BellFilled
+        FuncUsage
     },
     methods: {
         pagePosition () {
@@ -62,21 +45,10 @@ import { getNotice } from '@/request/remote/cosServer'
                 transform: `translateX(-${100 / 3 * (parseInt(this.page) - 1)}%)`
             }
         }
-    },
-    mounted () {
-        this.getNotice()
     }
 })
 export default class Dashboard extends Vue {
-    private notice = ''
     private page = '1'
-
-    public async getNotice () {
-        const res = await getNotice()
-        if (res) {
-            this.notice = res
-        }
-    }
 }
 </script>
 
