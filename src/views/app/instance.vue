@@ -122,13 +122,13 @@ import VFormDialog from '@/components/v-form-dialog.vue'
             running: {
                 title: '运行状态',
                 format: (row: any, value: any) => {
-                    return `<span class="status status-${value.toString()}">${value ? '运行中' : '关闭'}</span>`
+                    return `<span class="status status-${(value || 0).toString()}">${value ? '运行中' : '关闭'}</span>`
                 }
             },
             alive: {
                 title: '在线状态',
                 format: (row: any, value: any) => {
-                    return `<span class="status status-${value.toString()}">${value ? '在线' : '离线'}</span>`
+                    return `<span class="status status-${(value || 0).toString()}">${value ? '在线' : '离线'}</span>`
                 }
             },
             adapter: {
