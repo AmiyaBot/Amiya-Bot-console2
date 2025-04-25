@@ -51,7 +51,7 @@
                     <div class="icon setting" @click="setting = true"></div>
                 </div>
             </div>
-            <div>
+            <div style="overflow: auto">
                 <router-view v-slot="{ Component }">
                     <transition name="slide-fade">
                         <component :is="Component"/>

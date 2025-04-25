@@ -144,6 +144,7 @@ export default class Plugin extends Vue {
     display: flex;
 
     .plugin-list {
+        min-width: 240px;
         width: fit-content;
         height: 100%;
         overflow: auto;
