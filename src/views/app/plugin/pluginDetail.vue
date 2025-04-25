@@ -105,7 +105,8 @@ export function pluginLogo (item: PluginItem) {
     if (logo.startsWith('/')) {
         return Common.getData('host') + logo
     }
-    return amiyaBotServerHost + '/image?path=' + logo
+    // return amiyaBotServerHost + '/image?path=' + logo
+    return amiyaBotServerHost + '/api/v1/logo/' + logo
 }
 
 @Options({
