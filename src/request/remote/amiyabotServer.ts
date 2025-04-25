@@ -17,7 +17,7 @@ export async function commitToCustomShop (data: StringDict) {
 }
 
 export async function getCustomPluginShop () {
-    return await amiyaBotServer.post({
+    return await amiyaBotServer.get({
         // url: '/getPlugins'
         url: '/api/v1/plugins.json'
     })
